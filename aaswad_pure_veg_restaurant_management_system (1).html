@@ -1,0 +1,3186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aaswad Pure Veg - Income & Expense Management Cockpit (FY 2026-27)</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- Chart.js for Visualizations -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+    /* Custom Scrollbars */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+    /* Print Styles */
+    @media print {
+      .no-print { display: none !important; }
+      body { background: #fff !important; }
+      .print-shadow-none { box-shadow: none !important; border-color: #cbd5e1 !important; }
+    }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-800 antialiased min-h-screen flex flex-col">
+
+  <!-- ==============================================
+       HEADER / BRANDING & LIVE CLOCK
+       ============================================== -->
+  <header class="bg-slate-900 text-white sticky top-0 z-40 shadow-xl border-b border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-wrap justify-between items-center gap-4">
+      
+      <!-- Brand & Subtitle -->
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-amber-500 to-emerald-500 flex items-center justify-center text-white shadow-lg shadow-amber-500/30 text-2xl">
+          <i class="fa-solid fa-utensils"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-xl sm:text-2xl font-black tracking-tight text-white">AASWAD PURE VEG</h1>
+            <span class="text-[10px] uppercase font-bold bg-amber-400 text-slate-950 px-2 py-0.5 rounded-full tracking-wider">FY 2026-27</span>
+            <span class="text-[10px] uppercase font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded-full tracking-wider hidden sm:inline-block">www.aaswad.in</span>
+          </div>
+          <p class="text-xs text-slate-400 font-medium">All-in-One Comprehensive Income, Expense, Dues & Business Growth Cockpit</p>
+        </div>
+      </div>
+
+      <!-- Quick Actions, Live Clock & User Profile Bar -->
+      <div class="flex items-center gap-2 sm:gap-3 flex-wrap no-print">
+        <div id="liveClockDisplay" class="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-800 border border-slate-700 text-xs font-mono text-emerald-400">
+          <i class="fa-regular fa-clock"></i>
+          <span id="liveClockText">--:--:--</span>
+        </div>
+
+        <button onclick="openEntryModal()" class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs sm:text-sm flex items-center gap-2 shadow-md shadow-emerald-900/40 transition">
+          <i class="fa-solid fa-plus-circle"></i>
+          <span>Add Entry (नोंद करा)</span>
+        </button>
+
+        <button onclick="openLaunchModal()" class="px-3 py-2 rounded-xl bg-emerald-600/30 hover:bg-emerald-600/50 text-emerald-300 hover:text-white font-semibold text-xs flex items-center gap-1.5 border border-emerald-500/40 transition shadow-sm" title="100% Free Launch on www.aaswad.in">
+          <i class="fa-solid fa-cloud-arrow-up text-emerald-400"></i>
+          <span class="font-bold">100% Free Launch (मोफत लाईव्ह करा)</span>
+        </button>
+
+        <button onclick="exportFullJSONBackup()" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white font-semibold text-xs flex items-center gap-1.5 border border-slate-700 transition" title="Export complete backup">
+          <i class="fa-solid fa-cloud-arrow-down"></i>
+          <span class="hidden sm:inline">Backup</span>
+        </button>
+
+        <!-- User Profile & Logout -->
+        <div class="flex items-center gap-1.5 pl-2 border-l border-slate-800">
+          <div class="text-right hidden lg:block">
+            <span class="block text-[11px] font-bold text-white" id="headerUserName">Aaswad Admin</span>
+            <span class="block text-[9px] text-emerald-400 uppercase tracking-wider font-semibold">Authorized Session</span>
+          </div>
+          <button onclick="handleLogout()" class="px-2.5 py-2 rounded-xl bg-rose-950/40 hover:bg-rose-900 text-rose-300 hover:text-white border border-rose-800/40 text-xs font-bold transition flex items-center gap-1" title="Sign Out">
+            <i class="fa-solid fa-right-from-bracket"></i>
+            <span class="hidden sm:inline">Logout</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- STICKY IN-PAGE JUMP BAR -->
+    <div class="bg-slate-950/90 backdrop-blur border-t border-slate-800/80 px-4 py-2 overflow-x-auto no-print">
+      <div class="max-w-7xl mx-auto flex items-center gap-2 text-xs font-semibold">
+        <span class="text-slate-500 uppercase tracking-widest text-[10px] pl-1 pr-2">Jump To:</span>
+        <a href="#section-kpis" class="px-2.5 py-1 rounded-lg bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 transition shrink-0"><i class="fa-solid fa-gauge mr-1 text-amber-400"></i>Overview KPIs</a>
+        <a href="#section-modes" class="px-2.5 py-1 rounded-lg bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 transition shrink-0"><i class="fa-solid fa-wallet mr-1 text-indigo-400"></i>3 Payment Modes</a>
+        <a href="#section-advisor" class="px-2.5 py-1 rounded-lg bg-gradient-to-r from-amber-500/20 to-emerald-500/20 text-amber-300 hover:text-white border border-amber-500/30 transition shrink-0"><i class="fa-solid fa-lightbulb mr-1 text-amber-400"></i>Growth Advisor</a>
+        <a href="#section-ranked" class="px-2.5 py-1 rounded-lg bg-slate-800 text-indigo-300 hover:text-white hover:bg-slate-700 transition shrink-0"><i class="fa-solid fa-ranking-star mr-1 text-indigo-400"></i>High-to-Min Ranked</a>
+        <a href="#section-daily" class="px-2.5 py-1 rounded-lg bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 transition shrink-0"><i class="fa-solid fa-calendar-day mr-1 text-emerald-400"></i>Daily Cashbook</a>
+        <a href="#section-monthly" class="px-2.5 py-1 rounded-lg bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 transition shrink-0"><i class="fa-solid fa-calendar-days mr-1 text-blue-400"></i>Monthly Statement</a>
+        <a href="#section-yearly" class="px-2.5 py-1 rounded-lg bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 transition shrink-0"><i class="fa-solid fa-table-list mr-1 text-amber-400"></i>Yearly Master FY 26-27</a>
+        <a href="#section-items" class="px-2.5 py-1 rounded-lg bg-slate-800 text-amber-300 hover:text-white hover:bg-slate-700 transition shrink-0"><i class="fa-solid fa-boxes-stacked mr-1 text-amber-400"></i>Item Catalog (170+ Items)</a>
+        <a href="#section-payables" class="px-2.5 py-1 rounded-lg bg-slate-800 text-rose-300 hover:text-white hover:bg-slate-700 transition shrink-0"><i class="fa-solid fa-truck-ramp-box mr-1 text-rose-400"></i>Vendor Dues (देणे)</a>
+        <a href="#section-receivables" class="px-2.5 py-1 rounded-lg bg-slate-800 text-emerald-300 hover:text-white hover:bg-slate-700 transition shrink-0"><i class="fa-solid fa-hand-holding-dollar mr-1 text-emerald-400"></i>Customer Credits (येणे)</a>
+        <a href="#section-staff" class="px-2.5 py-1 rounded-lg bg-slate-800 text-purple-300 hover:text-white hover:bg-slate-700 transition shrink-0"><i class="fa-solid fa-user-group mr-1 text-purple-400"></i>Staff Advance (25 Staff)</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ==============================================
+       MAIN ALL-IN-ONE CONTAINER
+       ============================================== -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-10 flex-1 w-full">
+
+    <!-- ==============================================
+         1. TOP EXECUTIVE KPIS & PROFIT/LOSS METRICS
+         ============================================== -->
+    <section id="section-kpis" class="space-y-4">
+      <div class="flex flex-wrap justify-between items-end gap-3 border-b border-slate-200 pb-3">
+        <div>
+          <span class="text-[11px] font-black uppercase tracking-wider text-slate-500">Live Financial Health Matrix</span>
+          <h2 class="text-xl sm:text-2xl font-black text-slate-900 flex items-center gap-2">
+            <i class="fa-solid fa-chart-pie text-amber-500"></i>
+            Executive Summary & Profit-Loss Margin
+          </h2>
+        </div>
+        <div class="flex items-center gap-2 text-xs">
+          <span class="text-slate-500 font-medium">Selected Date:</span>
+          <input type="date" id="kpiDatePicker" onchange="syncSelectedDate(this.value)" class="font-bold text-slate-800 bg-white border border-slate-300 rounded-lg px-2.5 py-1 focus:ring-2 focus:ring-amber-500 text-xs">
+        </div>
+      </div>
+
+      <!-- 6 Main KPI Cards -->
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
+        
+        <!-- Today's Income -->
+        <div class="bg-white rounded-2xl p-4 border border-emerald-100 shadow-sm relative overflow-hidden">
+          <div class="text-[11px] font-bold text-emerald-700 uppercase tracking-wider">Today's Income</div>
+          <div class="text-lg sm:text-xl font-black text-slate-900 mt-1" id="kpiTodayIncome">₹0</div>
+          <div class="text-[10px] text-slate-500 mt-1 flex items-center gap-1">
+            <i class="fa-solid fa-arrow-trend-up text-emerald-500"></i>
+            <span id="kpiTodayIncomeEntries">0 entries today</span>
+          </div>
+          <div class="absolute -right-2 -bottom-2 text-emerald-50 text-4xl font-black -z-0">₹</div>
+        </div>
+
+        <!-- Today's Expense -->
+        <div class="bg-white rounded-2xl p-4 border border-rose-100 shadow-sm relative overflow-hidden">
+          <div class="text-[11px] font-bold text-rose-700 uppercase tracking-wider">Today's Expense</div>
+          <div class="text-lg sm:text-xl font-black text-slate-900 mt-1" id="kpiTodayExpense">₹0</div>
+          <div class="text-[10px] text-slate-500 mt-1 flex items-center gap-1">
+            <i class="fa-solid fa-arrow-trend-down text-rose-500"></i>
+            <span id="kpiTodayExpenseEntries">0 entries today</span>
+          </div>
+          <div class="absolute -right-2 -bottom-2 text-rose-50 text-4xl font-black -z-0">₹</div>
+        </div>
+
+        <!-- Today's Net P&L % -->
+        <div class="bg-white rounded-2xl p-4 border border-indigo-100 shadow-sm relative overflow-hidden">
+          <div class="text-[11px] font-bold text-indigo-700 uppercase tracking-wider">Today's Net P&L</div>
+          <div class="text-lg sm:text-xl font-black text-slate-900 mt-1" id="kpiTodayNetProfit">₹0</div>
+          <div class="mt-1">
+            <span id="kpiTodayMarginPercent" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">
+              0.0% Margin
+            </span>
+          </div>
+        </div>
+
+        <!-- FY 2026-27 Cumulative Income -->
+        <div class="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm">
+          <div class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Annual Income</div>
+          <div class="text-lg sm:text-xl font-black text-slate-900 mt-1" id="kpiYearlyIncome">₹0</div>
+          <div class="text-[10px] text-slate-500 mt-1">FY 2026-27 Total</div>
+        </div>
+
+        <!-- FY Cumulative Net Profit & Margin % -->
+        <div class="bg-gradient-to-br from-slate-900 to-slate-800 text-white rounded-2xl p-4 shadow-md relative overflow-hidden">
+          <div class="text-[11px] font-bold text-amber-400 uppercase tracking-wider">FY 26-27 Net Profit</div>
+          <div class="text-lg sm:text-xl font-black text-white mt-1" id="kpiYearlyNetProfit">₹0</div>
+          <div class="mt-1">
+            <span id="kpiYearlyMarginPercent" class="text-[10px] font-black px-2 py-0.5 rounded-full bg-slate-700 text-slate-300">
+              0.0% FY Profit
+            </span>
+          </div>
+        </div>
+
+        <!-- Outstanding Balances (Payable vs Receivable) -->
+        <div class="bg-white rounded-2xl p-4 border border-amber-200 shadow-sm space-y-1">
+          <div class="text-[11px] font-bold text-amber-800 uppercase tracking-wider">Dues & Credits</div>
+          <div class="text-xs font-semibold text-rose-600 flex justify-between">
+            <span>Dues (देणे):</span>
+            <span id="kpiVendorDuesTotal" class="font-bold">₹0</span>
+          </div>
+          <div class="text-xs font-semibold text-emerald-600 flex justify-between">
+            <span>Credit (येणे):</span>
+            <span id="kpiCustomerCreditsTotal" class="font-bold">₹0</span>
+          </div>
+          <div class="text-[10px] text-purple-600 flex justify-between pt-0.5 border-t border-slate-100">
+            <span>Staff Adv:</span>
+            <span id="kpiStaffAdvTotal" class="font-bold">₹0</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- 3 PAYMENT MODES LIVE BALANCE MATRIX -->
+      <div id="section-modes" class="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm mt-4">
+        <div class="flex flex-wrap justify-between items-center gap-2 mb-3">
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded-xl bg-indigo-100 text-indigo-700 flex items-center justify-center text-sm font-bold">
+              <i class="fa-solid fa-wallet"></i>
+            </div>
+            <div>
+              <h3 class="font-black text-sm text-slate-900">3 Payment Modes Balance Matrix (पेमेंट पद्धत हिशोब)</h3>
+              <p class="text-[11px] text-slate-400">Real-time split across 1. Cash, 2. Online Aaswad Bank, 3. Online Yash Bank</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-1 bg-slate-100 p-1 rounded-xl text-xs font-bold no-print">
+            <button onclick="setPayModePeriod('today')" id="pmPeriod-today" class="px-2.5 py-1 rounded-lg bg-white text-indigo-700 shadow-xs transition">Selected Day</button>
+            <button onclick="setPayModePeriod('year')" id="pmPeriod-year" class="px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition">FY 26-27 Master</button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <!-- Mode 1: Cash -->
+          <div class="p-4 rounded-2xl bg-amber-50/50 border border-amber-200/80 flex flex-col justify-between">
+            <div class="flex justify-between items-start">
+              <div class="flex items-center gap-2">
+                <span class="w-7 h-7 rounded-lg bg-amber-500 text-white flex items-center justify-center text-xs font-black">1</span>
+                <div>
+                  <h4 class="font-black text-xs text-slate-900">Cash (रोख रक्कम)</h4>
+                  <span class="text-[10px] text-amber-700 font-semibold">Counter Till Drawer</span>
+                </div>
+              </div>
+              <span class="text-xs font-black px-2 py-0.5 rounded-full bg-white text-amber-800 border border-amber-200" id="pmNetCash">₹0 Net</span>
+            </div>
+            <div class="mt-3 pt-3 border-t border-amber-200/60 grid grid-cols-2 gap-2 text-xs">
+              <div>
+                <span class="text-[10px] text-slate-500 block uppercase font-bold">Inflow (जमा)</span>
+                <span class="font-black text-emerald-600" id="pmInflowCash">₹0</span>
+              </div>
+              <div>
+                <span class="text-[10px] text-slate-500 block uppercase font-bold">Outflow (खर्च)</span>
+                <span class="font-black text-rose-600" id="pmOutflowCash">₹0</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Mode 2: Online Aaswad Bank -->
+          <div class="p-4 rounded-2xl bg-blue-50/50 border border-blue-200/80 flex flex-col justify-between">
+            <div class="flex justify-between items-start">
+              <div class="flex items-center gap-2">
+                <span class="w-7 h-7 rounded-lg bg-blue-600 text-white flex items-center justify-center text-xs font-black">2</span>
+                <div>
+                  <h4 class="font-black text-xs text-slate-900">Online Aaswad Bank</h4>
+                  <span class="text-[10px] text-blue-700 font-semibold">Current A/C (QR / UPI / NEFT)</span>
+                </div>
+              </div>
+              <span class="text-xs font-black px-2 py-0.5 rounded-full bg-white text-blue-800 border border-blue-200" id="pmNetAaswad">₹0 Net</span>
+            </div>
+            <div class="mt-3 pt-3 border-t border-blue-200/60 grid grid-cols-2 gap-2 text-xs">
+              <div>
+                <span class="text-[10px] text-slate-500 block uppercase font-bold">Inflow (जमा)</span>
+                <span class="font-black text-emerald-600" id="pmInflowAaswad">₹0</span>
+              </div>
+              <div>
+                <span class="text-[10px] text-slate-500 block uppercase font-bold">Outflow (खर्च)</span>
+                <span class="font-black text-rose-600" id="pmOutflowAaswad">₹0</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Mode 3: Online Yash Bank -->
+          <div class="p-4 rounded-2xl bg-purple-50/50 border border-purple-200/80 flex flex-col justify-between">
+            <div class="flex justify-between items-start">
+              <div class="flex items-center gap-2">
+                <span class="w-7 h-7 rounded-lg bg-purple-600 text-white flex items-center justify-center text-xs font-black">3</span>
+                <div>
+                  <h4 class="font-black text-xs text-slate-900">Online Yash Bank</h4>
+                  <span class="text-[10px] text-purple-700 font-semibold">Secondary A/C (UPI / NEFT)</span>
+                </div>
+              </div>
+              <span class="text-xs font-black px-2 py-0.5 rounded-full bg-white text-purple-800 border border-purple-200" id="pmNetYash">₹0 Net</span>
+            </div>
+            <div class="mt-3 pt-3 border-t border-purple-200/60 grid grid-cols-2 gap-2 text-xs">
+              <div>
+                <span class="text-[10px] text-slate-500 block uppercase font-bold">Inflow (जमा)</span>
+                <span class="font-black text-emerald-600" id="pmInflowYash">₹0</span>
+              </div>
+              <div>
+                <span class="text-[10px] text-slate-500 block uppercase font-bold">Outflow (खर्च)</span>
+                <span class="font-black text-rose-600" id="pmOutflowYash">₹0</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Interactive Charts -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 pt-2">
+        <div class="lg:col-span-2 bg-white rounded-3xl p-5 border border-slate-200 shadow-sm">
+          <div class="flex justify-between items-center mb-3">
+            <div>
+              <h3 class="font-black text-sm text-slate-900">FY 2026-27 Monthly Revenue vs Expense Cashflow</h3>
+              <p class="text-xs text-slate-400">Real-time comparison across all 12 operational months</p>
+            </div>
+            <span class="text-xs font-bold text-indigo-700 bg-indigo-50 px-2.5 py-1 rounded-full border border-indigo-100">Live Auto-Sync</span>
+          </div>
+          <div class="h-56">
+            <canvas id="monthlyTrendChart"></canvas>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm flex flex-col justify-between">
+          <div>
+            <div class="flex justify-between items-center mb-2">
+              <h3 class="font-black text-sm text-slate-900">Top Expense Breakdown</h3>
+              <span class="text-[10px] font-bold text-slate-400 uppercase">Share %</span>
+            </div>
+            <p class="text-xs text-slate-400 mb-2">Category distribution of overall restaurant burn</p>
+            <div class="h-44 relative flex items-center justify-center">
+              <canvas id="expenseCategoryDonut"></canvas>
+            </div>
+          </div>
+          <div id="donutTopLegend" class="grid grid-cols-2 gap-1.5 text-[11px] pt-3 border-t border-slate-100 font-semibold text-slate-600">
+            <!-- Injected dynamically -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==============================================
+         2. BUSINESS IMPROVEMENT & COST OPTIMIZATION ADVISOR
+         ============================================== -->
+    <section id="section-advisor" class="space-y-4">
+      <div class="bg-gradient-to-r from-slate-900 via-purple-950 to-slate-900 rounded-3xl p-6 text-white shadow-xl flex flex-wrap justify-between items-center gap-6 border border-purple-800/40">
+        <div class="max-w-2xl">
+          <div class="flex items-center gap-2">
+            <span class="text-xs uppercase tracking-widest font-extrabold bg-amber-500/20 text-amber-300 px-3 py-1 rounded-full border border-amber-500/30">
+              <i class="fa-solid fa-lightbulb text-amber-400 mr-1.5"></i>Strategic Restaurant Audit
+            </span>
+            <span class="text-xs bg-emerald-500/20 text-emerald-300 px-2.5 py-0.5 rounded-full border border-emerald-500/30 font-semibold">
+              Live Auto Diagnosis
+            </span>
+          </div>
+          <h2 class="text-xl sm:text-2xl font-black mt-2">Business Improvement & Profit Optimization Plan</h2>
+          <p class="text-xs sm:text-sm text-slate-300 mt-1">
+            Data-backed solutions tailored for Aaswad Pure Veg Restaurant to cut uncontrolled expenses, revitalize sluggish revenue streams, and protect daily working capital.
+          </p>
+        </div>
+
+        <div class="bg-slate-800/90 border border-slate-700/80 rounded-2xl p-4 flex items-center gap-4">
+          <div class="text-right">
+            <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Health Score</span>
+            <span class="text-2xl font-black text-amber-400" id="advisorHealthScore">80 / 100</span>
+            <span class="text-[10px] text-emerald-400 block font-semibold" id="advisorHealthStatus">Optimal Operating Health</span>
+          </div>
+          <div class="w-12 h-12 rounded-2xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 text-xl font-bold">
+            <i class="fa-solid fa-chart-line"></i>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Blueprint Accordion Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        
+        <!-- Pillar 1: How to Control & Cut Highest Expenses -->
+        <div class="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm space-y-3">
+          <div class="flex items-center justify-between border-b border-slate-100 pb-2.5">
+            <div class="flex items-center gap-2.5">
+              <div class="w-8 h-8 rounded-xl bg-rose-600 text-white flex items-center justify-center text-sm font-bold">
+                <i class="fa-solid fa-scissors"></i>
+              </div>
+              <h3 class="font-black text-sm text-slate-900">1. How to Cut & Control Highest Expenses</h3>
+            </div>
+            <span class="text-[11px] font-bold text-rose-700 bg-rose-50 px-2.5 py-0.5 rounded-full border border-rose-200">Target: 10%-15% Cut</span>
+          </div>
+
+          <div class="space-y-2.5 text-xs text-slate-600">
+            <div class="p-3 rounded-xl bg-slate-50 border border-slate-200/80">
+              <strong class="text-slate-900 block font-bold mb-0.5">Centralized Wholesale Kirana & Cooking Oil:</strong>
+              Stop daily retail store purchases. Procure 15kg oil tins and 50kg grain bags in 15-day wholesale cycles from APMC Mandai for an instant <strong>7% to 10% cash savings</strong>.
+            </div>
+            <div class="p-3 rounded-xl bg-slate-50 border border-slate-200/80">
+              <strong class="text-slate-900 block font-bold mb-0.5">Commercial LPG Gas Conservation:</strong>
+              Prepare yellow, red, and makhani gravy bases in bulk morning pressure cookers rather than heating individual small tawa pans per order. De-clog yellow carbon burner nozzles every 15 days to save <strong>18% fuel burn</strong>.
+            </div>
+            <div class="p-3 rounded-xl bg-slate-50 border border-slate-200/80">
+              <strong class="text-slate-900 block font-bold mb-0.5">Measured Dairy & Paneer Portioning:</strong>
+              Pre-cut paneer into exactly 8 standard cubes (100g) per portion dish. Random cutting by kitchen helpers creates a 12% hidden loss.
+            </div>
+            <div class="p-3 rounded-xl bg-slate-50 border border-slate-200/80">
+              <strong class="text-slate-900 block font-bold mb-0.5">Staff Advance Cap (25% Limit):</strong>
+              Cap advance withdrawals to maximum 25% of monthly salary, released strictly once between the 15th and 20th.
+            </div>
+          </div>
+        </div>
+
+        <!-- Pillar 2: How to Boost Lowest Income Streams -->
+        <div class="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm space-y-3">
+          <div class="flex items-center justify-between border-b border-slate-100 pb-2.5">
+            <div class="flex items-center gap-2.5">
+              <div class="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center text-sm font-bold">
+                <i class="fa-solid fa-arrow-trend-up"></i>
+              </div>
+              <h3 class="font-black text-sm text-slate-900">2. How to Boost Lowest Income Streams</h3>
+            </div>
+            <span class="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">Target: +25% Growth</span>
+          </div>
+
+          <div class="space-y-2.5 text-xs text-slate-600">
+            <div class="p-3 rounded-xl bg-emerald-50/40 border border-emerald-200/70">
+              <strong class="text-slate-900 block font-bold mb-0.5">Corporate & Industrial Thali Subscriptions:</strong>
+              Pitch executive veg meal boxes (₹90–₹120) to nearby industrial MIDC factories, banks, and IT parks for steady recurring lunch income.
+            </div>
+            <div class="p-3 rounded-xl bg-emerald-50/40 border border-emerald-200/70">
+              <strong class="text-slate-900 block font-bold mb-0.5">Direct WhatsApp Delivery (0% Commission):</strong>
+              Avoid high 25% aggregator commission cuts. Print flyers on parcel packaging: <em>"Order directly on WhatsApp for 10% OFF + Free Gulab Jamun"</em>.
+            </div>
+            <div class="p-3 rounded-xl bg-emerald-50/40 border border-emerald-200/70">
+              <strong class="text-slate-900 block font-bold mb-0.5">Monetize Afternoon Slump (3:30 PM - 6:30 PM):</strong>
+              Introduce high-margin teatime snacks: Special Masala Chai + Misal Pav / Crispy Vada Pav / Dosa combos to monetize idle tables and electricity costs.
+            </div>
+            <div class="p-3 rounded-xl bg-emerald-50/40 border border-emerald-200/70">
+              <strong class="text-slate-900 block font-bold mb-0.5">Weekend Handi Biryani / Family Combos:</strong>
+              Promote 1kg / 2kg Family Feast Handi Biryani packs in local housing society groups for instant weekend takeaway sales without occupying dining tables.
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ==============================================
+         3. RANKED HIGH-TO-MIN EXPENSES & INCOMES
+         ============================================== -->
+    <section id="section-ranked" class="space-y-4">
+      <div class="flex flex-wrap justify-between items-end gap-3 border-b border-slate-200 pb-3">
+        <div>
+          <span class="text-[11px] font-black uppercase tracking-wider text-indigo-600">Auto Rank Order</span>
+          <h2 class="text-xl sm:text-2xl font-black text-slate-900 flex items-center gap-2">
+            <i class="fa-solid fa-arrow-down-wide-short text-indigo-600"></i>
+            High-to-Min Spend & Revenue Hierarchy
+          </h2>
+          <p class="text-xs text-slate-500">Automatically arranged from biggest drain to lowest, and highest earner to minimum</p>
+        </div>
+        
+        <!-- Period Filter -->
+        <div class="flex items-center gap-1 bg-slate-200 p-1 rounded-xl text-xs font-bold no-print">
+          <button onclick="setRankedPeriod('today')" id="rankBtn-today" class="px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition">Today</button>
+          <button onclick="setRankedPeriod('month')" id="rankBtn-month" class="px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition">This Month</button>
+          <button onclick="setRankedPeriod('year')" id="rankBtn-year" class="px-3 py-1.5 rounded-lg bg-white text-indigo-700 shadow-sm transition">Whole FY 26-27</button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        
+        <!-- EXPENSES: HIGH TO MIN -->
+        <div class="bg-white rounded-3xl p-5 border border-rose-200/80 shadow-sm space-y-4">
+          <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+            <div class="flex items-center gap-2">
+              <span class="w-7 h-7 rounded-lg bg-rose-100 text-rose-700 flex items-center justify-center text-xs font-bold">
+                <i class="fa-solid fa-fire"></i>
+              </span>
+              <div>
+                <h3 class="font-black text-sm text-slate-900">Expenses: Department & Category Rank</h3>
+                <span class="text-[10px] text-slate-400">Sorted strictly from highest spend to minimum</span>
+              </div>
+            </div>
+            <span class="text-xs font-bold text-rose-700 bg-rose-50 px-2.5 py-0.5 rounded-full" id="rankedTotalExpLabel">₹0 Total</span>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="text-[10px] uppercase font-bold text-slate-400 border-b border-slate-100">
+                <tr>
+                  <th class="py-2">Rank & Department</th>
+                  <th class="py-2 text-center">Entries</th>
+                  <th class="py-2 text-right">Amount (₹)</th>
+                  <th class="py-2 text-right w-24">Share %</th>
+                </tr>
+              </thead>
+              <tbody id="rankedExpenseDeptTbody" class="divide-y divide-slate-100">
+                <!-- Injected dynamically -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- INCOME: HIGH TO MIN -->
+        <div class="bg-white rounded-3xl p-5 border border-emerald-200/80 shadow-sm space-y-4">
+          <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+            <div class="flex items-center gap-2">
+              <span class="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center text-xs font-bold">
+                <i class="fa-solid fa-arrow-trend-up"></i>
+              </span>
+              <div>
+                <h3 class="font-black text-sm text-slate-900">Income: Channel & Category Rank</h3>
+                <span class="text-[10px] text-slate-400">Sorted strictly from largest income driver to minimum</span>
+              </div>
+            </div>
+            <span class="text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full" id="rankedTotalIncLabel">₹0 Total</span>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="text-[10px] uppercase font-bold text-slate-400 border-b border-slate-100">
+                <tr>
+                  <th class="py-2">Rank & Channel</th>
+                  <th class="py-2 text-center">Entries</th>
+                  <th class="py-2 text-right">Amount (₹)</th>
+                  <th class="py-2 text-right w-24">Share %</th>
+                </tr>
+              </thead>
+              <tbody id="rankedIncomeDeptTbody" class="divide-y divide-slate-100">
+                <!-- Injected dynamically -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ==============================================
+         4. DAILY CASHBOOK (INWARD & OUTWARD REGISTER)
+         ============================================== -->
+    <section id="section-daily" class="space-y-4">
+      <div class="flex flex-wrap justify-between items-end gap-3 border-b border-slate-200 pb-3">
+        <div>
+          <span class="text-[11px] font-black uppercase tracking-wider text-emerald-600">Daily Ledger Register</span>
+          <h2 class="text-xl sm:text-2xl font-black text-slate-900 flex items-center gap-2">
+            <i class="fa-solid fa-calendar-day text-emerald-600"></i>
+            Daily Jama & Kharcha Ledger (दैनिक रोजकीर्द)
+          </h2>
+          <p class="text-xs text-slate-500">Live transaction audit with daily profit/loss calculation</p>
+        </div>
+
+        <div class="flex items-center gap-2 text-xs no-print">
+          <input type="text" id="dailyTableSearch" placeholder="Search daily transactions..." onkeyup="filterDailyEntries()" class="px-3 py-1.5 rounded-lg border border-slate-300 text-xs focus:ring-2 focus:ring-emerald-500">
+          <select id="dailyModeFilter" onchange="filterDailyEntries()" class="px-2.5 py-1.5 rounded-lg border border-slate-300 text-xs font-bold text-slate-700">
+            <option value="ALL">All Payment Modes</option>
+            <option value="Cash">1. Cash</option>
+            <option value="Online (Aaswad Bank)">2. Online (Aaswad Bank)</option>
+            <option value="Online (Yash Bank)">3. Online (Yash Bank)</option>
+          </select>
+          <button onclick="exportDailyCSV()" class="px-3 py-1.5 rounded-lg bg-slate-200 hover:bg-slate-300 font-bold text-slate-700 transition flex items-center gap-1.5">
+            <i class="fa-solid fa-file-csv"></i>
+            <span>Export CSV</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Selected Day P&L Highlight Strip -->
+      <div class="bg-gradient-to-r from-slate-900 to-slate-800 rounded-2xl p-4 text-white flex flex-wrap items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-lg font-bold">
+            <i class="fa-solid fa-scale-balanced"></i>
+          </div>
+          <div>
+            <div class="text-xs text-slate-400">Daily Balance for <span id="dailyStripDate" class="font-bold text-white">--</span></div>
+            <div class="text-base sm:text-lg font-black text-white flex items-center gap-2">
+              <span>Net Day Surplus:</span>
+              <span id="dailyStripSurplus" class="text-emerald-400">₹0</span>
+              <span id="dailyStripMargin" class="text-xs px-2 py-0.5 rounded-full bg-slate-700 text-slate-300">0.0% Margin</span>
+            </div>
+          </div>
+        </div>
+        <div class="flex items-center gap-6 text-xs">
+          <div>
+            <span class="text-slate-400 block">Day Inflow (जमा)</span>
+            <span id="dailyStripInflow" class="text-sm font-bold text-emerald-400">₹0</span>
+          </div>
+          <div>
+            <span class="text-slate-400 block">Day Outflow (खर्च)</span>
+            <span id="dailyStripOutflow" class="text-sm font-bold text-rose-400">₹0</span>
+          </div>
+          <div>
+            <span class="text-slate-400 block">Closing Till Cash</span>
+            <span id="dailyStripClosing" class="text-sm font-bold text-amber-300">₹0</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Transactions Table -->
+      <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto max-h-96">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-50 text-[10px] uppercase font-bold text-slate-500 sticky top-0 border-b border-slate-200">
+              <tr>
+                <th class="px-4 py-3">Time / ID</th>
+                <th class="px-4 py-3">Type</th>
+                <th class="px-4 py-3">Department / Category</th>
+                <th class="px-4 py-3">Particulars / Details</th>
+                <th class="px-4 py-3">Mode</th>
+                <th class="px-4 py-3">Staff / Party</th>
+                <th class="px-4 py-3 text-right">Amount (₹)</th>
+                <th class="px-4 py-3 text-center no-print">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="dailyTransactionsTbody" class="divide-y divide-slate-100 font-medium">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+        <div id="dailyEmptyNotice" class="p-8 text-center text-slate-400 text-xs">
+          No transactions registered for the selected date. Click "+ Add Entry (नोंद करा)" to record income or expenses.
+        </div>
+      </div>
+    </section>
+
+    <!-- ==============================================
+         5. MONTHLY STATEMENT & 12-MONTH CAROUSEL
+         ============================================== -->
+    <section id="section-monthly" class="space-y-4">
+      <div class="flex flex-wrap justify-between items-end gap-3 border-b border-slate-200 pb-3">
+        <div>
+          <span class="text-[11px] font-black uppercase tracking-wider text-blue-600">Monthly Performance</span>
+          <h2 class="text-xl sm:text-2xl font-black text-slate-900 flex items-center gap-2">
+            <i class="fa-solid fa-calendar-days text-blue-600"></i>
+            Monthly Financial Statement (मासिक अहवाल)
+          </h2>
+          <p class="text-xs text-slate-500">Select any fiscal month in FY 2026-27 to audit revenues, expenses, and margins</p>
+        </div>
+
+        <!-- Month Selector Pills -->
+        <div class="flex items-center gap-1.5 overflow-x-auto max-w-xl pb-1 no-print" id="monthSelectorPills">
+          <!-- Dynamically populated months Apr 2026 to Mar 2027 -->
+        </div>
+      </div>
+
+      <!-- Monthly Summary Metrics Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div class="bg-white rounded-2xl p-4 border border-emerald-100 shadow-sm">
+          <div class="text-[11px] font-bold text-emerald-700 uppercase tracking-wider">Month Total Income</div>
+          <div class="text-xl font-black text-slate-900 mt-1" id="monthlySumIncome">₹0</div>
+          <div class="text-[10px] text-slate-500 mt-0.5" id="monthlySumIncomeDays">0 trade days recorded</div>
+        </div>
+        
+        <div class="bg-white rounded-2xl p-4 border border-rose-100 shadow-sm">
+          <div class="text-[11px] font-bold text-rose-700 uppercase tracking-wider">Month Total Expenses</div>
+          <div class="text-xl font-black text-slate-900 mt-1" id="monthlySumExpense">₹0</div>
+          <div class="text-[10px] text-slate-500 mt-0.5">Operating burn + raw materials</div>
+        </div>
+
+        <div class="bg-white rounded-2xl p-4 border border-indigo-100 shadow-sm">
+          <div class="text-[11px] font-bold text-indigo-700 uppercase tracking-wider">Month Net Profit / Loss</div>
+          <div class="text-xl font-black text-slate-900 mt-1" id="monthlySumNetProfit">₹0</div>
+          <div class="mt-1">
+            <span id="monthlySumMarginBadge" class="text-[10px] font-black px-2 py-0.5 rounded-full bg-slate-100 text-slate-700">
+              0.0% Margin
+            </span>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-2xl p-4 border border-purple-100 shadow-sm">
+          <div class="text-[11px] font-bold text-purple-700 uppercase tracking-wider">Daily Average Income</div>
+          <div class="text-xl font-black text-slate-900 mt-1" id="monthlyAvgDaily">₹0 / day</div>
+          <div class="text-[10px] text-slate-500 mt-0.5">Run rate metric</div>
+        </div>
+      </div>
+
+      <!-- Month Daily Run Sheet Table -->
+      <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+          <h3 class="font-bold text-xs sm:text-sm text-slate-900" id="monthlyTableTitle">Monthly Day-by-Day Cash Progression</h3>
+          <button onclick="exportMonthlyCSV()" class="px-3 py-1 rounded-lg bg-white border border-slate-300 hover:bg-slate-100 text-xs font-bold text-slate-700 transition">
+            Export Month CSV
+          </button>
+        </div>
+        <div class="overflow-x-auto max-h-80">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-100 text-[10px] uppercase font-bold text-slate-500 sticky top-0">
+              <tr>
+                <th class="px-4 py-2.5">Date</th>
+                <th class="px-4 py-2.5 text-right">Income / Jama (₹)</th>
+                <th class="px-4 py-2.5 text-right">Expense / Kharcha (₹)</th>
+                <th class="px-4 py-2.5 text-right">Daily P&L (₹)</th>
+                <th class="px-4 py-2.5 text-right">Margin (%)</th>
+                <th class="px-4 py-2.5 text-center">Status</th>
+              </tr>
+            </thead>
+            <tbody id="monthlyDailyProgressionTbody" class="divide-y divide-slate-100">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==============================================
+         6. YEARLY MASTER FY 2026-27 (ALL 12 MONTHS)
+         ============================================== -->
+    <section id="section-yearly" class="space-y-4">
+      <div class="flex flex-wrap justify-between items-end gap-3 border-b border-slate-200 pb-3">
+        <div>
+          <span class="text-[11px] font-black uppercase tracking-wider text-amber-600">Annual Master Audit</span>
+          <h2 class="text-xl sm:text-2xl font-black text-slate-900 flex items-center gap-2">
+            <i class="fa-solid fa-table-list text-amber-600"></i>
+            Yearly Master Financial Statement (FY 2026-27)
+          </h2>
+          <p class="text-xs text-slate-500">Official 12-month balance sheet from April 2026 to March 2027 with profit percentages</p>
+        </div>
+
+        <button onclick="exportYearlyCSV()" class="px-3 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs flex items-center gap-1.5 shadow transition no-print">
+          <i class="fa-solid fa-file-excel"></i>
+          <span>Download Yearly Master CSV</span>
+        </button>
+      </div>
+
+      <!-- 12-Month Master Table -->
+      <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-900 text-white text-[10px] uppercase font-bold tracking-wider">
+              <tr>
+                <th class="px-4 py-3.5">Month</th>
+                <th class="px-4 py-3.5 text-right">Total Income / Jama (₹)</th>
+                <th class="px-4 py-3.5 text-right">Total Kharcha / Expense (₹)</th>
+                <th class="px-4 py-3.5 text-right">Net Profit / Shillak (₹)</th>
+                <th class="px-4 py-3.5 text-right">Profit Margin (%)</th>
+                <th class="px-4 py-3.5 text-center">Performance Indicator</th>
+              </tr>
+            </thead>
+            <tbody id="yearlyMasterTableTbody" class="divide-y divide-slate-100 font-medium">
+              <!-- Dynamically populated 12 months -->
+            </tbody>
+            <tfoot id="yearlyMasterTableTfoot" class="bg-slate-100 font-black text-slate-900 border-t-2 border-slate-300">
+              <!-- Dynamically populated grand totals -->
+            </tfoot>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==============================================
+         7. COMPREHENSIVE ITEM & MATERIAL MASTER REGISTER (170+ ITEMS)
+         ============================================== -->
+    <section id="section-items" class="space-y-4">
+      <div class="flex flex-wrap justify-between items-end gap-3 border-b border-slate-200 pb-3">
+        <div>
+          <span class="text-[11px] font-black uppercase tracking-wider text-amber-600">Granular Inventory & Sales Catalog</span>
+          <h2 class="text-xl sm:text-2xl font-black text-slate-900 flex items-center gap-2">
+            <i class="fa-solid fa-boxes-stacked text-amber-600"></i>
+            Restaurant Item & Raw Material Master Directory (किराणा, भाजी, बेकरी व खाद्यपदार्थ)
+          </h2>
+          <p class="text-xs text-slate-500">170+ pre-configured procurement materials, pav/bakery items, dairy products, groceries, and finished menu sales items</p>
+        </div>
+
+        <div class="flex items-center gap-2 text-xs no-print">
+          <input type="text" id="itemMasterSearch" placeholder="Search item (e.g., Pav, Paneer, Oil)..." onkeyup="filterItemMasterTable()" class="px-3 py-1.5 rounded-lg border border-slate-300 text-xs focus:ring-2 focus:ring-amber-500">
+          <select id="itemMasterFilterType" onchange="filterItemMasterTable()" class="px-2.5 py-1.5 rounded-lg border border-slate-300 text-xs font-bold text-slate-700">
+            <option value="ALL">All Items (170+)</option>
+            <option value="EXPENSE">Procurement / Expenses Only</option>
+            <option value="INCOME">Menu Sales / Income Only</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Quick Item Stats Strip -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div class="bg-amber-50/70 border border-amber-200 rounded-2xl p-3">
+          <div class="text-[10px] font-bold text-amber-700 uppercase">Bakery & Bread Items</div>
+          <div class="text-base font-black text-slate-900 mt-0.5">Laddi Pav, Kadak, Buns</div>
+          <span class="text-[10px] text-slate-500">Daily Misal, Pav Bhaji & Toast</span>
+        </div>
+        <div class="bg-emerald-50/70 border border-emerald-200 rounded-2xl p-3">
+          <div class="text-[10px] font-bold text-emerald-700 uppercase">Dairy & Milk Stocks</div>
+          <div class="text-base font-black text-slate-900 mt-0.5">Paneer, Buff Milk, Cheese</div>
+          <span class="text-[10px] text-slate-500">Butter, Curd, Malai, Mawa</span>
+        </div>
+        <div class="bg-rose-50/70 border border-rose-200 rounded-2xl p-3">
+          <div class="text-[10px] font-bold text-rose-700 uppercase">Grains, Oils & Gas</div>
+          <div class="text-base font-black text-slate-900 mt-0.5">Kolam/Basmati, 15L Oils</div>
+          <span class="text-[10px] text-slate-500">Dals, Spices & LPG 19kg gas</span>
+        </div>
+        <div class="bg-blue-50/70 border border-blue-200 rounded-2xl p-3">
+          <div class="text-[10px] font-bold text-blue-700 uppercase">Fresh Menu Inflows</div>
+          <div class="text-base font-black text-slate-900 mt-0.5">Veg Thalis, Biryani, Dosa</div>
+          <span class="text-[10px] text-slate-500">Pav Bhaji, Misal, Chinese, Teas</span>
+        </div>
+      </div>
+
+      <!-- Item Directory Table -->
+      <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto max-h-96">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-50 text-[10px] uppercase font-bold text-slate-500 sticky top-0 border-b border-slate-200">
+              <tr>
+                <th class="px-4 py-3">#</th>
+                <th class="px-4 py-3">Item / Material Name</th>
+                <th class="px-4 py-3">Type</th>
+                <th class="px-4 py-3">Category / Department</th>
+                <th class="px-4 py-3 text-center">Unit / Packaging</th>
+                <th class="px-4 py-3 text-right">Avg Unit Rate (₹)</th>
+                <th class="px-4 py-3 text-center no-print">Quick Action</th>
+              </tr>
+            </thead>
+            <tbody id="itemMasterTableTbody" class="divide-y divide-slate-100 font-medium">
+              <!-- Dynamically populated from 170+ item catalog -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==============================================
+         8. VENDOR DUES & ACCOUNTS PAYABLE (देणे बाकी)
+         ============================================== -->
+    <section id="section-payables" class="space-y-4">
+      <div class="flex flex-wrap justify-between items-end gap-3 border-b border-slate-200 pb-3">
+        <div>
+          <span class="text-[11px] font-black uppercase tracking-wider text-rose-600">Accounts Payable</span>
+          <h2 class="text-xl sm:text-2xl font-black text-slate-900 flex items-center gap-2">
+            <i class="fa-solid fa-truck-ramp-box text-rose-600"></i>
+            Vendor & Supplier Dues (कोणाचे किती देणे बाकी)
+          </h2>
+          <p class="text-xs text-slate-500">Track kirana, vegetables, dairy, gas and packaging suppliers with partial payments</p>
+        </div>
+
+        <div class="flex items-center gap-2 no-print">
+          <button onclick="openAddVendorModal()" class="px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs flex items-center gap-1.5 shadow transition">
+            <i class="fa-solid fa-plus"></i>
+            <span>Add Supplier Bill (देणे नोंदवा)</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Payables Table -->
+      <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto max-h-80">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-50 text-[10px] uppercase font-bold text-slate-500 sticky top-0 border-b border-slate-200">
+              <tr>
+                <th class="px-4 py-3">Vendor / Supplier Name</th>
+                <th class="px-4 py-3">Material Category</th>
+                <th class="px-4 py-3">Phone</th>
+                <th class="px-4 py-3 text-right">Total Bill (₹)</th>
+                <th class="px-4 py-3 text-right">Paid to Date (₹)</th>
+                <th class="px-4 py-3 text-right">Remaining Due (₹)</th>
+                <th class="px-4 py-3 text-center">Status</th>
+                <th class="px-4 py-3 text-center no-print">Settle / Pay</th>
+              </tr>
+            </thead>
+            <tbody id="payablesTableTbody" class="divide-y divide-slate-100">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==============================================
+         9. CUSTOMER CREDITS & RECEIVABLES (येणे बाकी)
+         ============================================== -->
+    <section id="section-receivables" class="space-y-4">
+      <div class="flex flex-wrap justify-between items-end gap-3 border-b border-slate-200 pb-3">
+        <div>
+          <span class="text-[11px] font-black uppercase tracking-wider text-emerald-600">Accounts Receivable</span>
+          <h2 class="text-xl sm:text-2xl font-black text-slate-900 flex items-center gap-2">
+            <i class="fa-solid fa-hand-holding-dollar text-emerald-600"></i>
+            Customer Udhaari & Catering Credit (कोणाकडून किती येणे बाकी)
+          </h2>
+          <p class="text-xs text-slate-500">Track party orders, corporate tiffin credit, banquet billing, and regular customer balance</p>
+        </div>
+
+        <div class="flex items-center gap-2 no-print">
+          <button onclick="openAddCustomerCreditModal()" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center gap-1.5 shadow transition">
+            <i class="fa-solid fa-plus"></i>
+            <span>Add Customer Credit (येणे नोंदवा)</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Receivables Table -->
+      <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto max-h-80">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-50 text-[10px] uppercase font-bold text-slate-500 sticky top-0 border-b border-slate-200">
+              <tr>
+                <th class="px-4 py-3">Customer / Party Name</th>
+                <th class="px-4 py-3">Order Type / Event</th>
+                <th class="px-4 py-3">Contact</th>
+                <th class="px-4 py-3 text-right">Total Bill (₹)</th>
+                <th class="px-4 py-3 text-right">Advance Received (₹)</th>
+                <th class="px-4 py-3 text-right">Balance Due (₹)</th>
+                <th class="px-4 py-3 text-center">Status</th>
+                <th class="px-4 py-3 text-center no-print">Collect Payment</th>
+              </tr>
+            </thead>
+            <tbody id="receivablesTableTbody" class="divide-y divide-slate-100">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==============================================
+         10. STAFF ADVANCE & PAYROLL MASTER (25 STAFF)
+         ============================================== -->
+    <section id="section-staff" class="space-y-4">
+      <div class="flex flex-wrap justify-between items-end gap-3 border-b border-slate-200 pb-3">
+        <div>
+          <span class="text-[11px] font-black uppercase tracking-wider text-purple-600">Staff Payroll & Advances</span>
+          <h2 class="text-xl sm:text-2xl font-black text-slate-900 flex items-center gap-2">
+            <i class="fa-solid fa-user-group text-purple-600"></i>
+            Staff Salary & Advance Ledger (कर्मचारी उचल व पगार)
+          </h2>
+          <p class="text-xs text-slate-500">All 25 restaurant team members: base salary, advances taken, and net salary payable</p>
+        </div>
+
+        <div class="flex items-center gap-2 no-print">
+          <button onclick="openStaffAdvanceQuickModal()" class="px-3 py-1.5 rounded-lg bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs flex items-center gap-1.5 shadow transition">
+            <i class="fa-solid fa-money-bill-transfer"></i>
+            <span>Disburse Advance (उचल द्या)</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Staff Summary Table -->
+      <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto max-h-96">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-50 text-[10px] uppercase font-bold text-slate-500 sticky top-0 border-b border-slate-200">
+              <tr>
+                <th class="px-4 py-3">#</th>
+                <th class="px-4 py-3">Staff Name</th>
+                <th class="px-4 py-3">Designation / Role</th>
+                <th class="px-4 py-3 text-right">Base Salary (₹)</th>
+                <th class="px-4 py-3 text-right">Advances Taken (₹)</th>
+                <th class="px-4 py-3 text-right">Net Payable Salary (₹)</th>
+                <th class="px-4 py-3 text-center">Advance Exposure</th>
+                <th class="px-4 py-3 text-center no-print">Action</th>
+              </tr>
+            </thead>
+            <tbody id="staffMasterTableTbody" class="divide-y divide-slate-100">
+              <!-- Dynamically populated 25 staff -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ==============================================
+       FOOTER
+       ============================================== -->
+  <footer class="bg-slate-900 text-slate-400 py-6 text-xs text-center border-t border-slate-800 no-print">
+    <div class="max-w-7xl mx-auto px-4 flex flex-wrap justify-between items-center gap-4">
+      <div>
+        <strong class="text-white">Aaswad Pure Veg Family Restaurant</strong> — Complete Financial Intelligence Engine (FY 2026-27)
+      </div>
+      <div class="flex items-center gap-4">
+        <span>Auto-saved to Local Storage</span>
+        <button onclick="clearAllDataToZero()" class="text-rose-400 hover:underline">Clear & Reset All to ₹0</button>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ==============================================
+       MODAL 1: ADD TRANSACTION ENTRY (JAMA / KHARCHA)
+       ============================================== -->
+  <div id="entryModal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-4 border border-slate-100 max-h-[90vh] overflow-y-auto">
+      <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+        <div>
+          <h3 class="font-black text-lg text-slate-900" id="entryModalTitle">Record New Transaction (नवीन नोंद)</h3>
+          <p class="text-xs text-slate-500">Add daily restaurant income or operational expense</p>
+        </div>
+        <button onclick="closeEntryModal()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 flex items-center justify-center">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <form id="transactionForm" onsubmit="handleTransactionSubmit(event)" class="space-y-3.5 text-xs">
+        
+        <!-- Type Selection -->
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Transaction Type</label>
+          <div class="grid grid-cols-2 gap-2">
+            <label class="cursor-pointer">
+              <input type="radio" name="entryType" value="jama" checked onchange="onTypeChanged()" class="peer sr-only">
+              <div class="p-2.5 rounded-xl border border-slate-200 text-center font-bold peer-checked:bg-emerald-600 peer-checked:text-white peer-checked:border-emerald-600 transition">
+                <i class="fa-solid fa-arrow-down-left mr-1"></i> Income (जमा)
+              </div>
+            </label>
+            <label class="cursor-pointer">
+              <input type="radio" name="entryType" value="kharch" onchange="onTypeChanged()" class="peer sr-only">
+              <div class="p-2.5 rounded-xl border border-slate-200 text-center font-bold peer-checked:bg-rose-600 peer-checked:text-white peer-checked:border-rose-600 transition">
+                <i class="fa-solid fa-arrow-up-right mr-1"></i> Expense (खर्च)
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- Date & Amount -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Date</label>
+            <input type="date" id="entryDate" required class="w-full p-2.5 rounded-xl border border-slate-300 font-bold text-slate-800 focus:ring-2 focus:ring-emerald-500">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Amount (₹)</label>
+            <input type="number" id="entryAmount" step="0.01" min="1" placeholder="e.g. 4500" required class="w-full p-2.5 rounded-xl border border-slate-300 font-black text-slate-900 text-sm focus:ring-2 focus:ring-emerald-500">
+          </div>
+        </div>
+
+        <!-- Quick Item Selector -->
+        <div>
+          <div class="flex justify-between items-center mb-1">
+            <label class="font-bold text-slate-700">Select Specific Item / Material (170+ Pre-set Items)</label>
+            <span class="text-[10px] text-amber-700 font-bold bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">Auto-fills Details</span>
+          </div>
+          <select id="entryQuickItemSelect" onchange="onQuickItemSelected(this.value)" class="w-full p-2.5 rounded-xl border border-amber-300 bg-amber-50/30 font-semibold text-slate-800 focus:ring-2 focus:ring-amber-500">
+            <!-- Dynamically populated based on entry type -->
+          </select>
+        </div>
+
+        <!-- Category / Department -->
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Department / Category</label>
+          <select id="entryCategory" required class="w-full p-2.5 rounded-xl border border-slate-300 font-medium text-slate-800 focus:ring-2 focus:ring-emerald-500">
+            <!-- Dynamically populated based on type -->
+          </select>
+        </div>
+
+        <!-- Particulars & Payment Mode -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Particulars / Details</label>
+            <input type="text" id="entryDetails" placeholder="e.g. 50kg Kolam Rice / Dining Sales" required class="w-full p-2.5 rounded-xl border border-slate-300 text-slate-800">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Payment Mode (पेमेंट पद्धत)</label>
+            <select id="entryMode" class="w-full p-2.5 rounded-xl border border-slate-300 text-slate-800 font-bold">
+              <option value="Cash">1. Cash (रोख रक्कम)</option>
+              <option value="Online (Aaswad Bank)">2. Online (Aaswad Bank Account)</option>
+              <option value="Online (Yash Bank)">3. Online (Yash Bank Account)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Supplier / Customer / Staff Name -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Party / Supplier / Staff Name</label>
+            <input type="text" id="entryParty" placeholder="e.g. Laxmi Mandai / Walk-in" class="w-full p-2.5 rounded-xl border border-slate-300 text-slate-800">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Bill / Voucher / Ref No.</label>
+            <input type="text" id="entryRef" placeholder="e.g. BILL-9821" class="w-full p-2.5 rounded-xl border border-slate-300 text-slate-800">
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="pt-3 flex gap-2">
+          <button type="button" onclick="closeEntryModal()" class="flex-1 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold transition">Cancel</button>
+          <button type="submit" class="flex-1 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black shadow-lg shadow-emerald-900/20 transition">Save Transaction</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==============================================
+       MODAL 2: VENDOR PAYMENT DRAWER
+       ============================================== -->
+  <div id="vendorPayModal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4 border border-slate-100">
+      <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+        <div>
+          <h3 class="font-black text-lg text-slate-900">Record Vendor Payment</h3>
+          <p class="text-xs text-slate-500" id="vendorModalSubtitle">Settle supplier dues</p>
+        </div>
+        <button onclick="closeVendorPayModal()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <form onsubmit="handleVendorPaymentSubmit(event)" class="space-y-3 text-xs">
+        <input type="hidden" id="vendorPayIndex">
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Remaining Due Balance</label>
+          <div class="text-xl font-black text-rose-600" id="vendorDueDisplay">₹0</div>
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Payment Amount (₹)</label>
+          <input type="number" id="vendorPayAmount" step="0.01" min="1" required class="w-full p-2.5 rounded-xl border border-slate-300 font-black text-slate-900 text-base focus:ring-2 focus:ring-rose-500">
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Payment Date</label>
+          <input type="date" id="vendorPayDate" required class="w-full p-2.5 rounded-xl border border-slate-300 font-bold text-slate-800">
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Payment Mode (पेमेंट पद्धत)</label>
+          <select id="vendorPayMode" class="w-full p-2.5 rounded-xl border border-slate-300 text-slate-800 font-bold">
+            <option value="Cash">1. Cash (काउंटर रोख)</option>
+            <option value="Online (Aaswad Bank)">2. Online (Aaswad Bank Account)</option>
+            <option value="Online (Yash Bank)">3. Online (Yash Bank Account)</option>
+          </select>
+        </div>
+
+        <div class="pt-3 flex gap-2">
+          <button type="button" onclick="closeVendorPayModal()" class="flex-1 py-2.5 rounded-xl bg-slate-100 text-slate-700 font-bold">Cancel</button>
+          <button type="submit" class="flex-1 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-black shadow-lg shadow-rose-900/20">Confirm & Record Expense</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==============================================
+       MODAL 3: CUSTOMER CREDIT COLLECTION DRAWER
+       ============================================== -->
+  <div id="customerCollectModal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4 border border-slate-100">
+      <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+        <div>
+          <h3 class="font-black text-lg text-slate-900">Collect Customer Credit</h3>
+          <p class="text-xs text-slate-500" id="customerModalSubtitle">Receive party / regular credit</p>
+        </div>
+        <button onclick="closeCustomerCollectModal()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <form onsubmit="handleCustomerCollectionSubmit(event)" class="space-y-3 text-xs">
+        <input type="hidden" id="customerCollectIndex">
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Balance to Receive</label>
+          <div class="text-xl font-black text-emerald-600" id="customerDueDisplay">₹0</div>
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Collection Amount (₹)</label>
+          <input type="number" id="customerCollectAmount" step="0.01" min="1" required class="w-full p-2.5 rounded-xl border border-slate-300 font-black text-slate-900 text-base focus:ring-2 focus:ring-emerald-500">
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Collection Date</label>
+          <input type="date" id="customerCollectDate" required class="w-full p-2.5 rounded-xl border border-slate-300 font-bold text-slate-800">
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Payment Channel (जमा पद्धत)</label>
+          <select id="customerCollectMode" class="w-full p-2.5 rounded-xl border border-slate-300 text-slate-800 font-bold">
+            <option value="Cash">1. Cash (रोख रक्कम)</option>
+            <option value="Online (Aaswad Bank)">2. Online (Aaswad Bank Account)</option>
+            <option value="Online (Yash Bank)">3. Online (Yash Bank Account)</option>
+          </select>
+        </div>
+
+        <div class="pt-3 flex gap-2">
+          <button type="button" onclick="closeCustomerCollectModal()" class="flex-1 py-2.5 rounded-xl bg-slate-100 text-slate-700 font-bold">Cancel</button>
+          <button type="submit" class="flex-1 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black shadow-lg shadow-emerald-900/20">Collect & Record Income</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==============================================
+       MODAL 4: LOGIN / AUTHENTICATION GATEWAY
+       ============================================== -->
+  <div id="loginOverlay" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-7 sm:p-8 shadow-2xl space-y-6 border border-slate-200">
+      <div class="text-center space-y-2">
+        <div class="w-16 h-16 rounded-3xl bg-gradient-to-tr from-amber-500 to-emerald-500 flex items-center justify-center text-white mx-auto shadow-xl shadow-amber-500/30 text-3xl">
+          <i class="fa-solid fa-utensils"></i>
+        </div>
+        <h2 class="text-2xl font-black text-slate-900 tracking-tight">Aaswad Pure Veg</h2>
+        <p class="text-xs text-slate-500 font-medium">Financial Cockpit Security Gate • <span class="font-bold text-emerald-600">www.aaswad.in</span></p>
+      </div>
+
+      <div class="p-3 bg-amber-50 rounded-2xl border border-amber-200 text-[11px] text-amber-900 flex items-start gap-2.5">
+        <i class="fa-solid fa-shield-halved text-amber-600 text-base mt-0.5"></i>
+        <div>
+          <span class="font-bold block">Default Credentials / लॉगिन माहिती:</span>
+          <span>User ID: <code class="bg-white px-1.5 py-0.5 rounded font-mono font-bold text-slate-900">admin</code> &nbsp;|&nbsp; Password: <code class="bg-white px-1.5 py-0.5 rounded font-mono font-bold text-slate-900">aaswad@2026</code></span>
+        </div>
+      </div>
+
+      <form id="loginForm" onsubmit="handleLoginSubmit(event)" class="space-y-4 text-xs">
+        <div>
+          <label class="block font-bold text-slate-700 mb-1.5">User ID / Username</label>
+          <div class="relative">
+            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400">
+              <i class="fa-solid fa-user"></i>
+            </span>
+            <input type="text" id="loginUserId" placeholder="admin / manager" required autocomplete="username" class="w-full pl-10 pr-3 py-3 rounded-xl border border-slate-300 font-semibold text-slate-900 focus:ring-2 focus:ring-emerald-500">
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-700 mb-1.5">Password (पासवर्ड)</label>
+          <div class="relative">
+            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400">
+              <i class="fa-solid fa-lock"></i>
+            </span>
+            <input type="password" id="loginPassword" placeholder="••••••••" required autocomplete="current-password" class="w-full pl-10 pr-10 py-3 rounded-xl border border-slate-300 font-semibold text-slate-900 focus:ring-2 focus:ring-emerald-500">
+            <button type="button" onclick="togglePasswordVisibility()" class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600">
+              <i class="fa-solid fa-eye" id="passwordToggleIcon"></i>
+            </button>
+          </div>
+        </div>
+
+        <div id="loginErrorMessage" class="hidden p-2.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 font-bold text-center text-xs">
+          Invalid User ID or Password. Please try again!
+        </div>
+
+        <button type="submit" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-sm shadow-xl shadow-emerald-900/30 transition">
+          <i class="fa-solid fa-arrow-right-to-bracket mr-1.5"></i> Sign In to Cockpit
+        </button>
+      </form>
+
+      <div class="text-center pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400 font-medium">
+        <span>Protected Financial Portal</span>
+        <button type="button" onclick="openLaunchModal()" class="text-indigo-600 hover:underline font-bold">Free Launch Guide (मोफत लाईव्ह)</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==============================================
+       MODAL 5: 100% FREE LAUNCH & HOSTING GUIDE (www.aaswad.in)
+       ============================================== -->
+  <div id="launchModal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-7 shadow-2xl space-y-4 border border-slate-100 max-h-[90vh] overflow-y-auto text-xs">
+      <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+        <div class="flex items-center gap-2.5">
+          <div class="w-10 h-10 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-lg font-bold shadow-sm">
+            <i class="fa-solid fa-rocket"></i>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h3 class="font-black text-base text-slate-900">How to Launch 100% FREE on www.aaswad.in</h3>
+              <span class="text-[10px] bg-emerald-100 text-emerald-800 font-black px-2 py-0.5 rounded-full uppercase">₹0 Cost (फुकट)</span>
+            </div>
+            <p class="text-[11px] text-slate-500">Host your software permanently online without paying for server or hosting fees!</p>
+          </div>
+        </div>
+        <button onclick="closeLaunchModal()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 flex items-center justify-center">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="space-y-4 text-slate-700">
+        
+        <!-- Step 1: Download File -->
+        <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 flex items-start gap-3">
+          <div class="w-7 h-7 rounded-lg bg-slate-900 text-white font-bold flex items-center justify-center shrink-0 text-xs">1</div>
+          <div class="space-y-1">
+            <strong class="text-slate-900 text-xs block">Save This Single File as <code>index.html</code></strong>
+            <p class="text-[11px] text-slate-600 leading-relaxed">
+              Because this software is built as an All-in-One single file, you do not need any complex databases or backend installations. Right-click on this page and choose <strong>Save As &gt; <code>index.html</code></strong>.
+            </p>
+          </div>
+        </div>
+
+        <!-- Step 2: 100% Free Hosting Platforms -->
+        <div class="p-4 rounded-2xl bg-emerald-50/70 border border-emerald-200/80 space-y-3">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <div class="w-7 h-7 rounded-lg bg-emerald-600 text-white font-bold flex items-center justify-center shrink-0 text-xs">2</div>
+              <strong class="text-emerald-950 text-xs block">Choose a 100% FREE Hosting Provider (Lifelong Free + SSL)</strong>
+            </div>
+            <span class="text-[10px] text-emerald-700 font-bold">No Credit Card Needed</span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-[11px]">
+            <!-- Method A: Netlify Drop -->
+            <div class="p-3 rounded-xl bg-white border border-emerald-200/90 shadow-2xs space-y-1.5">
+              <div class="flex items-center justify-between">
+                <span class="font-black text-slate-900 flex items-center gap-1.5">
+                  <i class="fa-solid fa-cloud-arrow-up text-teal-600"></i> Netlify Drop (Easiest)
+                </span>
+                <span class="text-[9px] bg-teal-50 text-teal-700 font-bold px-1.5 py-0.5 rounded">2 Minutes</span>
+              </div>
+              <p class="text-[10px] text-slate-600 leading-normal">
+                1. Open <a href="https://app.netlify.com/drop" target="_blank" class="text-indigo-600 font-bold underline">netlify.com/drop</a>.<br>
+                2. Put <code>index.html</code> in a folder and drag-and-drop it into the browser.<br>
+                3. Your restaurant system goes live instantly!
+              </p>
+            </div>
+
+            <!-- Method B: GitHub Pages -->
+            <div class="p-3 rounded-xl bg-white border border-emerald-200/90 shadow-2xs space-y-1.5">
+              <div class="flex items-center justify-between">
+                <span class="font-black text-slate-900 flex items-center gap-1.5">
+                  <i class="fa-brands fa-github text-slate-900"></i> GitHub Pages
+                </span>
+                <span class="text-[9px] bg-slate-100 text-slate-700 font-bold px-1.5 py-0.5 rounded">Official</span>
+              </div>
+              <p class="text-[10px] text-slate-600 leading-normal">
+                1. Go to <a href="https://github.com" target="_blank" class="text-indigo-600 font-bold underline">github.com</a> &amp; create a free repository.<br>
+                2. Upload <code>index.html</code>.<br>
+                3. Go to <strong>Settings &gt; Pages &gt; Branch: Main &gt; Save</strong>.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 3: Link Custom Domain for Free -->
+        <div class="p-3.5 rounded-2xl bg-indigo-50/70 border border-indigo-200 space-y-2">
+          <div class="flex items-center gap-2">
+            <div class="w-7 h-7 rounded-lg bg-indigo-600 text-white font-bold flex items-center justify-center shrink-0 text-xs">3</div>
+            <strong class="text-indigo-950 text-xs block">Connect <code>www.aaswad.in</code> to Your Free Hosting</strong>
+          </div>
+          <p class="text-[11px] text-indigo-900 leading-relaxed">
+            In your domain provider dashboard (GoDaddy, BigRock, Hostinger, or Namecheap), open <strong>DNS Management</strong> for <code>aaswad.in</code> and add these standard DNS records:
+          </p>
+
+          <div class="bg-slate-950 text-white rounded-xl p-3 font-mono text-[10px] space-y-1">
+            <div class="text-slate-400"># DNS Records for Netlify Free Hosting:</div>
+            <div>Type: <span class="text-amber-400 font-bold">CNAME</span> &nbsp;|&nbsp; Name: <span class="text-emerald-400 font-bold">www</span> &nbsp;|&nbsp; Value: <span class="text-indigo-300 font-bold">your-site-name.netlify.app</span></div>
+            <div>Type: <span class="text-amber-400 font-bold">A Record</span> &nbsp;|&nbsp; Name: <span class="text-emerald-400 font-bold">@</span> &nbsp;|&nbsp; Value: <span class="text-indigo-300 font-bold">75.2.60.5</span></div>
+          </div>
+        </div>
+
+        <!-- Step 4: Security and Offline storage -->
+        <div class="p-3 rounded-2xl bg-amber-50 border border-amber-200 flex items-start gap-2.5 text-[11px] text-amber-950">
+          <i class="fa-solid fa-shield-halved text-amber-600 text-sm mt-0.5"></i>
+          <div>
+            <strong class="font-bold block">Password &amp; Privacy:</strong>
+            <span>Even when hosted publicly on the web, nobody can access your daily cashbook or staff payroll without entering your User ID (<code class="bg-white px-1 font-mono font-bold">admin</code>) and Password (<code class="bg-white px-1 font-mono font-bold">aaswad@2026</code>).</span>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="pt-2 flex justify-end gap-2 border-t border-slate-100">
+        <button onclick="closeLaunchModal()" class="px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold transition">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toastNotification" class="fixed bottom-5 right-5 z-50 transform translate-y-24 opacity-0 transition-all duration-300 bg-slate-900 text-white px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-3 border border-slate-700 text-xs font-semibold">
+    <i id="toastIcon" class="fa-solid fa-circle-check text-emerald-400 text-base"></i>
+    <span id="toastMsg">Operation successful!</span>
+  </div>
+
+  <!-- ==============================================
+       CORE APPLICATION JAVASCRIPT
+       ============================================== -->
+  <script>
+    // --------------------------------------------
+    // 0. AUTHENTICATION & LOGIN GATEWAY
+    // --------------------------------------------
+    const LOCAL_STORAGE_KEY_SESSION = 'aaswad_session_token';
+    const LOCAL_STORAGE_KEY_CREDS = 'aaswad_credentials';
+
+    // Default administrative credentials
+    const DEFAULT_CREDENTIALS = [
+      { userId: "admin", password: "aaswad@2026", role: "Owner / Administrator", name: "Aaswad Admin" },
+      { userId: "manager", password: "manager@2026", role: "Restaurant Manager", name: "Floor Manager" }
+    ];
+
+    let currentLoggedInUser = null;
+
+    function initAuth() {
+      // Check stored custom credentials or initialize defaults
+      if (!localStorage.getItem(LOCAL_STORAGE_KEY_CREDS)) {
+        localStorage.setItem(LOCAL_STORAGE_KEY_CREDS, JSON.stringify(DEFAULT_CREDENTIALS));
+      }
+
+      // Check existing session
+      const savedSession = sessionStorage.getItem(LOCAL_STORAGE_KEY_SESSION) || localStorage.getItem(LOCAL_STORAGE_KEY_SESSION);
+      if (savedSession) {
+        try {
+          currentLoggedInUser = JSON.parse(savedSession);
+          hideLoginOverlay();
+          updateHeaderProfile();
+        } catch(e) {
+          showLoginOverlay();
+        }
+      } else {
+        showLoginOverlay();
+      }
+    }
+
+    function showLoginOverlay() {
+      const overlay = document.getElementById('loginOverlay');
+      if (overlay) overlay.classList.remove('hidden');
+    }
+
+    function hideLoginOverlay() {
+      const overlay = document.getElementById('loginOverlay');
+      if (overlay) overlay.classList.add('hidden');
+    }
+
+    function handleLoginSubmit(e) {
+      e.preventDefault();
+      const userVal = document.getElementById('loginUserId').value.trim();
+      const passVal = document.getElementById('loginPassword').value.trim();
+      const errorEl = document.getElementById('loginErrorMessage');
+
+      let creds = DEFAULT_CREDENTIALS;
+      try {
+        creds = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY_CREDS)) || DEFAULT_CREDENTIALS;
+      } catch(err) {
+        creds = DEFAULT_CREDENTIALS;
+      }
+
+      const match = creds.find(c => c.userId.toLowerCase() === userVal.toLowerCase() && c.password === passVal);
+
+      if (match) {
+        currentLoggedInUser = match;
+        sessionStorage.setItem(LOCAL_STORAGE_KEY_SESSION, JSON.stringify(match));
+        localStorage.setItem(LOCAL_STORAGE_KEY_SESSION, JSON.stringify(match)); // Remember session
+        hideLoginOverlay();
+        updateHeaderProfile();
+        errorEl.classList.add('hidden');
+        showToast(`Welcome back, ${match.name}! (Signed In)`, "circle-check");
+      } else {
+        errorEl.classList.remove('hidden');
+      }
+    }
+
+    function handleLogout() {
+      if (!confirm("Are you sure you want to log out of Aaswad Financial Cockpit?")) return;
+      sessionStorage.removeItem(LOCAL_STORAGE_KEY_SESSION);
+      localStorage.removeItem(LOCAL_STORAGE_KEY_SESSION);
+      currentLoggedInUser = null;
+      document.getElementById('loginForm').reset();
+      showLoginOverlay();
+      showToast("Successfully logged out", "right-from-bracket");
+    }
+
+    function updateHeaderProfile() {
+      if (currentLoggedInUser) {
+        const nameEl = document.getElementById('headerUserName');
+        if (nameEl) nameEl.textContent = currentLoggedInUser.name;
+      }
+    }
+
+    function togglePasswordVisibility() {
+      const passInput = document.getElementById('loginPassword');
+      const icon = document.getElementById('passwordToggleIcon');
+      if (passInput.type === 'password') {
+        passInput.type = 'text';
+        icon.className = 'fa-solid fa-eye-slash';
+      } else {
+        passInput.type = 'password';
+        icon.className = 'fa-solid fa-eye';
+      }
+    }
+
+    function openLaunchModal() {
+      const m = document.getElementById('launchModal');
+      if (m) m.classList.remove('hidden');
+    }
+
+    function closeLaunchModal() {
+      const m = document.getElementById('launchModal');
+      if (m) m.classList.add('hidden');
+    }
+
+    // --------------------------------------------
+    // 1. DATA MODELS & INITIAL STATE
+    // --------------------------------------------
+    const LOCAL_STORAGE_KEY_ENTRIES = 'aaswad_entries_fy2627_clean';
+    const LOCAL_STORAGE_KEY_VENDORS = 'aaswad_vendors_fy2627_clean';
+    const LOCAL_STORAGE_KEY_CUSTOMERS = 'aaswad_customers_fy2627_clean';
+    const LOCAL_STORAGE_KEY_STAFF = 'aaswad_staff_fy2627_clean';
+
+    // FY 2026-27 Months mapping
+    const FY_MONTHS = [
+      { id: '2026-04', label: 'Apr 2026', short: 'Apr' },
+      { id: '2026-05', label: 'May 2026', short: 'May' },
+      { id: '2026-06', label: 'Jun 2026', short: 'Jun' },
+      { id: '2026-07', label: 'Jul 2026', short: 'Jul' },
+      { id: '2026-08', label: 'Aug 2026', short: 'Aug' },
+      { id: '2026-09', label: 'Sep 2026', short: 'Sep' },
+      { id: '2026-10', label: 'Oct 2026', short: 'Oct' },
+      { id: '2026-11', label: 'Nov 2026', short: 'Nov' },
+      { id: '2026-12', label: 'Dec 2026', short: 'Dec' },
+      { id: '2027-01', label: 'Jan 2027', short: 'Jan' },
+      { id: '2027-02', label: 'Feb 2027', short: 'Feb' },
+      { id: '2027-03', label: 'Mar 2027', short: 'Mar' },
+    ];
+
+    // Comprehensive Restaurant Expenses List
+    const EXPENSE_CATEGORIES = [
+      "Pav / Bread / Bakery Items",
+      "Food Material / Kirana",
+      "Rice / Wheat / Atta / Flour",
+      "Pulses / Dal / Chana",
+      "Spices / Masala / Condiments",
+      "Cooking Oil / Ghee / Butter",
+      "Vegetables & Fruits (भाजीपाला)",
+      "Dairy / Whole Milk / Curd",
+      "Paneer / Cheese",
+      "Breakfast / Nashta Material",
+      "Thali / Meal Raw Material",
+      "Tea Powder / Coffee / Sugar",
+      "Beverages / Cold Drinks / Syrups",
+      "Sweets / Desserts / Ice Cream",
+      "Mineral Water / Jars / Bottles",
+      "Chutney / Pickles / Papad",
+      "Frozen / Ready-made Food Items",
+      "Commercial Gas / LPG Cylinders",
+      "Staff Salary (कर्मचारी पगार)",
+      "Staff Advance (कर्मचारी उचल)",
+      "Staff Meals & Tea / Snacks",
+      "Staff Uniform / Aprons / Laundry",
+      "Staff Bonus / Incentives / Festival Kharcha",
+      "Electricity Bill (MSEDCL Light Bill)",
+      "Water Bill / Water Tanker Service",
+      "Restaurant Rent (दुकान / जागा भाडे)",
+      "Packaging / Parcel Boxes / Containers",
+      "Disposable Items (Plates, Spoons, Glasses, Straws)",
+      "Tissue Paper / Napkins / Table Rolls",
+      "Cleaning Materials (Phenyl, Scrubber, Dishwash)",
+      "Handwash / Sanitizer / Kitchen Gloves",
+      "Garbage Collection / Municipal Waste Charges",
+      "Kitchen Exhaust / Chimney Cleaning",
+      "Repairs & Maintenance (Plumbing, Electrical, Gas)",
+      "Fridge / Deep Freezer & AC Servicing",
+      "Water Filter / Commercial RO Servicing",
+      "Pest Control / Rodent Treatment",
+      "Kitchen Utensils / Small Cutlery Replacement",
+      "Delivery App Commissions (Zomato / Swiggy)",
+      "Online Delivery Boy Charges / Petrol",
+      "Vehicle Expense / Procurement Fuel",
+      "Marketing / WhatsApp Promotion / Banner Ads",
+      "Printing (Menu Cards, Bill Books, Flyers, QR Stands)",
+      "Internet WiFi / Landline Phone Bill",
+      "Software / Billing POS / Thermal Printer Rolls",
+      "Accounting / CA / Tax Consultant Fees",
+      "GST / Government Fees / FSSAI License Renewal",
+      "Bank Charges / QR UPI Transaction Fees",
+      "Miscellaneous / Daily Petty Cash Expenses"
+    ];
+
+    // Comprehensive Restaurant Income List
+    const INCOME_CATEGORIES = [
+      "Restaurant Table Dining Sales (हॉल जेवण विक्री)",
+      "Breakfast & Morning Nashta Sales (नाश्ता विक्री)",
+      "Lunch Special & Veg Thali Sales (दुपार जेवण / थाळी)",
+      "Dinner Dining Sales (रात्र जेवण विक्री)",
+      "Parcel / Takeaway Counter Sales (पार्सल काउंटर)",
+      "Pav Bhaji / Misal Pav / Fast Food Counter",
+      "Tea & Coffee Counter Sales (चहा व कॉफी काउंटर)",
+      "Fresh Juice & Beverage Sales",
+      "Ice Cream & Dessert Sales",
+      "Packaged Drinking Water Sales",
+      "Online Food Orders (Swiggy / Zomato)",
+      "Direct WhatsApp Delivery Orders",
+      "Corporate Lunch Boxes / Industrial Tiffin Services",
+      "Catering & Outdoor Bulk Event Orders",
+      "Party / Birthday / Banquet Hall Bookings",
+      "Customer Udhaari Repayment (ग्राहकांकडून येणे बाकी वसूल)",
+      "Advance Received for Future Catering / Events",
+      "Scrap / Empty Oil Tins & Bottle Disposal Sale",
+      "Other Operating Receipts / Miscellaneous Income"
+    ];
+
+    // Comprehensive Granular 170+ Restaurant Items & Raw Materials Directory
+    const RESTAURANT_ITEM_CATALOG = [
+      // 1. Pav, Bread & Bakery Procurement Items
+      { name: "Fresh Daily Laddi Pav (लड्डी पाव)", type: "kharch", category: "Pav / Bread / Bakery Items", unit: "Per Laddi (4 Pav)", avgRate: 14 },
+      { name: "Jumbo Butter Pav Bhaji Pav (मोठा पाव)", type: "kharch", category: "Pav / Bread / Bakery Items", unit: "Per Laddi (4 Pav)", avgRate: 18 },
+      { name: "Kadak Pav / Brun Pav (कडक पाव)", type: "kharch", category: "Pav / Bread / Bakery Items", unit: "Per Laddi", avgRate: 15 },
+      { name: "Jumbo Burger & Pav Bhaji Buns", type: "kharch", category: "Pav / Bread / Bakery Items", unit: "Pkt (6 pcs)", avgRate: 35 },
+      { name: "Sliced Sandwich Bread (White)", type: "kharch", category: "Pav / Bread / Bakery Items", unit: "Loaf (400g)", avgRate: 38 },
+      { name: "Brown Wheat Bread Loaf", type: "kharch", category: "Pav / Bread / Bakery Items", unit: "Loaf (400g)", avgRate: 45 },
+      { name: "Sweet Fruit Milk Buns", type: "kharch", category: "Pav / Bread / Bakery Items", unit: "Pkt (6 pcs)", avgRate: 30 },
+      { name: "Bakery Toast / Rusk Biscuits", type: "kharch", category: "Pav / Bread / Bakery Items", unit: "1 kg Pkt", avgRate: 140 },
+      { name: "Khari Biscuits (Butter / Methi)", type: "kharch", category: "Pav / Bread / Bakery Items", unit: "1 kg Pkt", avgRate: 160 },
+      { name: "Jeera Khari Biscuits", type: "kharch", category: "Pav / Bread / Bakery Items", unit: "1 kg Pkt", avgRate: 170 },
+      { name: "Cream Rolls (Vanilla / Chocolate)", type: "kharch", category: "Pav / Bread / Bakery Items", unit: "Box (20 pcs)", avgRate: 200 },
+      { name: "Garlic Toast Breads", type: "kharch", category: "Pav / Bread / Bakery Items", unit: "Pkt", avgRate: 50 },
+      { name: "Pizza Base (Medium 8 inch)", type: "kharch", category: "Pav / Bread / Bakery Items", unit: "Pair (2 pcs)", avgRate: 30 },
+
+      // 2. Dairy & Milk Products
+      { name: "Fresh Malai Paneer (पनीर)", type: "kharch", category: "Paneer / Cheese", unit: "1 kg", avgRate: 340 },
+      { name: "Processed Cheese Block / Slices", type: "kharch", category: "Paneer / Cheese", unit: "1 kg", avgRate: 460 },
+      { name: "Mozzarella Pizza Cheese Shredded", type: "kharch", category: "Paneer / Cheese", unit: "1 kg", avgRate: 490 },
+      { name: "Fresh Buffalo Milk 6.5% FAT (म्हैशीचे दूध)", type: "kharch", category: "Dairy / Whole Milk / Curd", unit: "1 Litre", avgRate: 68 },
+      { name: "Pasteurized Cow Milk (गाईचे दूध)", type: "kharch", category: "Dairy / Whole Milk / Curd", unit: "1 Litre", avgRate: 54 },
+      { name: "Fresh Thick Curd / Dahi (दही)", type: "kharch", category: "Dairy / Whole Milk / Curd", unit: "1 kg / Tub", avgRate: 65 },
+      { name: "Commercial Bulk Curd Bucket (15kg Dahi)", type: "kharch", category: "Dairy / Whole Milk / Curd", unit: "15 kg Bucket", avgRate: 900 },
+      { name: "Table Butter (Amul Salted Butter)", type: "kharch", category: "Cooking Oil / Ghee / Butter", unit: "500g Pkt", avgRate: 265 },
+      { name: "Unsalted Cooking Butter / White Makhan (सफेद लोणी)", type: "kharch", category: "Cooking Oil / Ghee / Butter", unit: "1 kg", avgRate: 480 },
+      { name: "Pure Desi Cow Ghee (तूप)", type: "kharch", category: "Cooking Oil / Ghee / Butter", unit: "1 kg Jar", avgRate: 620 },
+      { name: "Pure Buffalo Ghee", type: "kharch", category: "Cooking Oil / Ghee / Butter", unit: "1 kg Jar", avgRate: 580 },
+      { name: "Fresh Cooking Cream / Malai (Amul Fresh Cream)", type: "kharch", category: "Dairy / Whole Milk / Curd", unit: "1 Litre Tetra", avgRate: 210 },
+      { name: "Fresh Buttermilk / Taak (ताक)", type: "kharch", category: "Dairy / Whole Milk / Curd", unit: "5 Litre Can", avgRate: 150 },
+      { name: "Fresh Mawa / Khoya (मावा - Gulab Jamun)", type: "kharch", category: "Dairy / Whole Milk / Curd", unit: "1 kg", avgRate: 320 },
+      { name: "Sweet Shrikhand (Kesar Elaichi)", type: "kharch", category: "Sweets / Desserts / Ice Cream", unit: "1 kg Tub", avgRate: 240 },
+      { name: "Basundi (बासुंदी)", type: "kharch", category: "Sweets / Desserts / Ice Cream", unit: "1 Litre", avgRate: 260 },
+
+      // 3. Grains, Flours & Pulses (Kirana)
+      { name: "Wada Kolam Rice (कोलम तांदूळ)", type: "kharch", category: "Rice / Wheat / Atta / Flour", unit: "50 kg Bag", avgRate: 2850 },
+      { name: "1121 Premium Basmati Rice (बासमती)", type: "kharch", category: "Rice / Wheat / Atta / Flour", unit: "30 kg Bag", avgRate: 2700 },
+      { name: "Indrayani Fragrant Rice (इंद्रायणी तांदूळ)", type: "kharch", category: "Rice / Wheat / Atta / Flour", unit: "50 kg Bag", avgRate: 2900 },
+      { name: "Idli Rice / Broken Boiled Rice (इडली तांदूळ)", type: "kharch", category: "Rice / Wheat / Atta / Flour", unit: "50 kg Bag", avgRate: 2100 },
+      { name: "Jeera Samba Rice", type: "kharch", category: "Rice / Wheat / Atta / Flour", unit: "25 kg Bag", avgRate: 1850 },
+      { name: "Sharbati Wheat Flour / Chakki Atta (गहू पीठ)", type: "kharch", category: "Rice / Wheat / Atta / Flour", unit: "50 kg Bag", avgRate: 1850 },
+      { name: "Refined Wheat Flour / Maida (मैदा)", type: "kharch", category: "Rice / Wheat / Atta / Flour", unit: "50 kg Bag", avgRate: 1750 },
+      { name: "Pure Gram Flour / Chana Besan (बेसन)", type: "kharch", category: "Rice / Wheat / Atta / Flour", unit: "30 kg Bag", avgRate: 2550 },
+      { name: "Fine Rava / Semolina (बारीक रवा)", type: "kharch", category: "Breakfast / Nashta Material", unit: "30 kg Bag", avgRate: 1350 },
+      { name: "Bombay Rava / Sooji (सुजी)", type: "kharch", category: "Breakfast / Nashta Material", unit: "30 kg Bag", avgRate: 1300 },
+      { name: "Thick Poha (जाड पोहे - कांदा पोहे)", type: "kharch", category: "Breakfast / Nashta Material", unit: "30 kg Bag", avgRate: 1450 },
+      { name: "Thin Nylon Poha (पातळ पोहे)", type: "kharch", category: "Breakfast / Nashta Material", unit: "20 kg Bag", avgRate: 1100 },
+      { name: "Makka Atta / Corn Flour (कॉर्न फ्लोअर)", type: "kharch", category: "Rice / Wheat / Atta / Flour", unit: "10 kg Bag", avgRate: 480 },
+      { name: "Jowar Flour / Jowar Atta (ज्वारी पीठ)", type: "kharch", category: "Rice / Wheat / Atta / Flour", unit: "25 kg Bag", avgRate: 1200 },
+      { name: "Bajra Flour / Bajra Atta (बाजरी पीठ)", type: "kharch", category: "Rice / Wheat / Atta / Flour", unit: "25 kg Bag", avgRate: 1100 },
+
+      // 4. Pulses & Dals (कडधान्ये व डाळी)
+      { name: "Premium Toor Dal / Arhar Dal (तूर डाळ)", type: "kharch", category: "Pulses / Dal / Chana", unit: "30 kg Bag", avgRate: 4600 },
+      { name: "Yellow Moong Dal (पिवळी मूग डाळ)", type: "kharch", category: "Pulses / Dal / Chana", unit: "30 kg Bag", avgRate: 3600 },
+      { name: "Green Moong Whole (अख्खा मूग)", type: "kharch", category: "Pulses / Dal / Chana", unit: "30 kg Bag", avgRate: 3400 },
+      { name: "Black Urad Dal Gota (इडली / मेदू वडा)", type: "kharch", category: "Pulses / Dal / Chana", unit: "30 kg Bag", avgRate: 3750 },
+      { name: "Split Urad Dal (उडदाची डाळ)", type: "kharch", category: "Pulses / Dal / Chana", unit: "30 kg Bag", avgRate: 3600 },
+      { name: "Chana Dal (हरभरा डाळ)", type: "kharch", category: "Pulses / Dal / Chana", unit: "30 kg Bag", avgRate: 2600 },
+      { name: "Masoor Dal (मसूर डाळ)", type: "kharch", category: "Pulses / Dal / Chana", unit: "30 kg Bag", avgRate: 2700 },
+      { name: "Whole Red Masoor (अख्खा मसूर)", type: "kharch", category: "Pulses / Dal / Chana", unit: "30 kg Bag", avgRate: 2800 },
+      { name: "White Kabuli Chana / Chickpeas (मोठे छोले)", type: "kharch", category: "Pulses / Dal / Chana", unit: "30 kg Bag", avgRate: 3800 },
+      { name: "Brown Desi Harbara / Chana (गावठी हरभरा)", type: "kharch", category: "Pulses / Dal / Chana", unit: "30 kg Bag", avgRate: 2250 },
+      { name: "Green Dried Vatana (हिरवा सुका वाटाणा)", type: "kharch", category: "Pulses / Dal / Chana", unit: "30 kg Bag", avgRate: 2100 },
+      { name: "White Dried Vatana (पांढरा वाटाणा - उसळ)", type: "kharch", category: "Pulses / Dal / Chana", unit: "30 kg Bag", avgRate: 1950 },
+      { name: "Sprouted Matki / Moth Beans (मटकी - मिसळ)", type: "kharch", category: "Pulses / Dal / Chana", unit: "20 kg Bag", avgRate: 2300 },
+      { name: "Chowli / Black Eyed Peas (चवळी)", type: "kharch", category: "Pulses / Dal / Chana", unit: "20 kg Bag", avgRate: 2100 },
+      { name: "Rajma Kashmiri Red (राजमा)", type: "kharch", category: "Pulses / Dal / Chana", unit: "25 kg Bag", avgRate: 3200 },
+
+      // 5. Cooking Oils, Fats & Ghee
+      { name: "Refined Sunflower Cooking Oil (15L Tin)", type: "kharch", category: "Cooking Oil / Ghee / Butter", unit: "15 Litre Tin", avgRate: 1980 },
+      { name: "Filtered Groundnut Oil (शेंगदाणा तेल 15L)", type: "kharch", category: "Cooking Oil / Ghee / Butter", unit: "15 Litre Tin", avgRate: 2550 },
+      { name: "Refined Soybean Cooking Oil (15L)", type: "kharch", category: "Cooking Oil / Ghee / Butter", unit: "15 Litre Tin", avgRate: 1750 },
+      { name: "Cottonseed Oil (कपाशी तेल 15L)", type: "kharch", category: "Cooking Oil / Ghee / Butter", unit: "15 Litre Tin", avgRate: 1800 },
+      { name: "Mustard Oil / Mohri Tel (मोहरी तेल)", type: "kharch", category: "Cooking Oil / Ghee / Butter", unit: "5 Litre Can", avgRate: 780 },
+      { name: "Vanaspati Dalda Ghee (15 Litre)", type: "kharch", category: "Cooking Oil / Ghee / Butter", unit: "15 Litre Tin", avgRate: 1650 },
+      { name: "Roasted Groundnut / Peanuts (शेंगदाणे)", type: "kharch", category: "Food Material / Kirana", unit: "30 kg Bag", avgRate: 3600 },
+
+      // 6. Fresh Vegetables & Herbs (भाजीपाला)
+      { name: "Nashik Red Onions (कांदा)", type: "kharch", category: "Vegetables & Fruits (भाजीपाला)", unit: "50 kg Sack", avgRate: 1400 },
+      { name: "Farm Fresh Tomatoes (टोमॅटो)", type: "kharch", category: "Vegetables & Fruits (भाजीपाला)", unit: "25 kg Crate", avgRate: 650 },
+      { name: "Jyoti / Chipsona Potatoes (बटाटा)", type: "kharch", category: "Vegetables & Fruits (भाजीपाला)", unit: "50 kg Sack", avgRate: 1150 },
+      { name: "Fresh Ginger (ताजे आले)", type: "kharch", category: "Vegetables & Fruits (भाजीपाला)", unit: "10 kg Bag", avgRate: 1100 },
+      { name: "Fresh Garlic / Lassan (गावरान लसूण)", type: "kharch", category: "Vegetables & Fruits (भाजीपाला)", unit: "10 kg Bag", avgRate: 1600 },
+      { name: "Ginger-Garlic Ready Paste (आले-लसूण पेस्ट)", type: "kharch", category: "Food Material / Kirana", unit: "5 kg Bucket", avgRate: 450 },
+      { name: "Spicy Green Chillies (हिरवी तिखट मिरची)", type: "kharch", category: "Vegetables & Fruits (भाजीपाला)", unit: "10 kg Bag", avgRate: 480 },
+      { name: "Fresh Coriander Leaves (कोथिंबीर जुडी)", type: "kharch", category: "Vegetables & Fruits (भाजीपाला)", unit: "50 Bunches", avgRate: 500 },
+      { name: "Fresh Mint Leaves (पुदिना जुडी)", type: "kharch", category: "Vegetables & Fruits (भाजीपाला)", unit: "25 Bunches", avgRate: 200 },
+      { name: "Fresh Green Capsicum / Shimla Mirch", type: "kharch", category: "Vegetables & Fruits (भाजीपाला)", unit: "10 kg Crate", avgRate: 350 },
+      { name: "Fresh Cauliflower (फ्लॉवर)", type: "kharch", category: "Vegetables & Fruits (भाजीपाला)", unit: "20 kg Sack", avgRate: 500 },
+      { name: "Fresh Green Cabbage (पत्ताकोबी)", type: "kharch", category: "Vegetables & Fruits (भाजीपाला)", unit: "25 kg Sack", avgRate: 400 },
+      { name: "Frozen Green Peas / Frozen Vatana (मटार)", type: "kharch", category: "Frozen / Ready-made Food Items", unit: "10 kg Bag", avgRate: 750 },
+      { name: "Fresh Palak Leaves (पालक जुडी)", type: "kharch", category: "Vegetables & Fruits (भाजीपाला)", unit: "30 Bunches", avgRate: 350 },
+      { name: "Fresh Methi Leaves (मेथी जुडी)", type: "kharch", category: "Vegetables & Fruits (भाजीपाला)", unit: "30 Bunches", avgRate: 400 },
+      { name: "Curry Leaves / Kadi Patta (कढीपत्ता)", type: "kharch", category: "Vegetables & Fruits (भाजीपाला)", unit: "2 kg Lot", avgRate: 160 },
+      { name: "Juicy Yellow Lemons (लिंबू)", type: "kharch", category: "Vegetables & Fruits (भाजीपाला)", unit: "100 Pcs Bag", avgRate: 300 },
+      { name: "Carrots / Gajar (गाजर)", type: "kharch", category: "Vegetables & Fruits (भाजीपाला)", unit: "10 kg Bag", avgRate: 350 },
+      { name: "French Beans / Fansi (फरसबी)", type: "kharch", category: "Vegetables & Fruits (भाजीपाला)", unit: "10 kg Bag", avgRate: 600 },
+      { name: "Beetroot / Chukandar (बीट)", type: "kharch", category: "Vegetables & Fruits (भाजीपाला)", unit: "10 kg Bag", avgRate: 320 },
+      { name: "Sweet Corn Kernels (मक्याचे दाणे)", type: "kharch", category: "Frozen / Ready-made Food Items", unit: "5 kg Pkt", avgRate: 420 },
+      { name: "Fresh Button Mushrooms", type: "kharch", category: "Vegetables & Fruits (भाजीपाला)", unit: "10 Pkts (200g)", avgRate: 450 },
+      { name: "Whole Coconuts for Chutney (नारळ)", type: "kharch", category: "Vegetables & Fruits (भाजीपाला)", unit: "50 Pcs Bag", avgRate: 1500 },
+      { name: "Dry Coconut / Khobare (सुकं खोबरं)", type: "kharch", category: "Food Material / Kirana", unit: "10 kg Bag", avgRate: 2100 },
+
+      // 7. Spices, Masalas & Condiments
+      { name: "Special Pav Bhaji Masala (खडा मसाला ब्लेंड)", type: "kharch", category: "Spices / Masala / Condiments", unit: "1 kg Pkt", avgRate: 420 },
+      { name: "Kolhapuri Misal Kat Gravy Tikhat Masala", type: "kharch", category: "Spices / Masala / Condiments", unit: "1 kg Pkt", avgRate: 450 },
+      { name: "Kitchen King Masala Box", type: "kharch", category: "Spices / Masala / Condiments", unit: "1 kg Box", avgRate: 480 },
+      { name: "Special Garam Masala Powder", type: "kharch", category: "Spices / Masala / Condiments", unit: "1 kg Box", avgRate: 460 },
+      { name: "Kashmiri Red Chilli Powder (कश्मीरी मिरची पूड)", type: "kharch", category: "Spices / Masala / Condiments", unit: "5 kg Bag", avgRate: 1850 },
+      { name: "Reshampatti / Guntur Teja Mirchi Powder (तिखट)", type: "kharch", category: "Spices / Masala / Condiments", unit: "5 kg Bag", avgRate: 1650 },
+      { name: "Pure Turmeric Powder / Haldi (हळद)", type: "kharch", category: "Spices / Masala / Condiments", unit: "5 kg Bag", avgRate: 1100 },
+      { name: "Coriander & Cumin Powder / Dhana-Jeera Powder", type: "kharch", category: "Spices / Masala / Condiments", unit: "5 kg Bag", avgRate: 1400 },
+      { name: "Whole Cumin Seeds / Jeera (जिरे)", type: "kharch", category: "Spices / Masala / Condiments", unit: "5 kg Bag", avgRate: 1800 },
+      { name: "Mustard Seeds / Rai / Mohri (मोहरी)", type: "kharch", category: "Spices / Masala / Condiments", unit: "5 kg Bag", avgRate: 750 },
+      { name: "Asafoetida / Compounded Hing (हिंग)", type: "kharch", category: "Spices / Masala / Condiments", unit: "500g Jar", avgRate: 450 },
+      { name: "Iodized Cooking Salt (टाटा मीठ)", type: "kharch", category: "Spices / Masala / Condiments", unit: "25 kg Bag", avgRate: 320 },
+      { name: "Black Rock Salt / Kala Namak", type: "kharch", category: "Spices / Masala / Condiments", unit: "5 kg Bag", avgRate: 200 },
+      { name: "Whole Khada Spices Mix (लवंग, वेलची, दालचिनी, तमालपत्र)", type: "kharch", category: "Spices / Masala / Condiments", unit: "1 kg Mix", avgRate: 950 },
+      { name: "Green Cardamom / Chhoti Elaichi (वेलची)", type: "kharch", category: "Spices / Masala / Condiments", unit: "250g Pkt", avgRate: 650 },
+      { name: "Cloves / Lavang (लवंग)", type: "kharch", category: "Spices / Masala / Condiments", unit: "500g Pkt", avgRate: 550 },
+      { name: "Cinnamon Sticks / Dalchini (दालचिनी)", type: "kharch", category: "Spices / Masala / Condiments", unit: "1 kg Pkt", avgRate: 400 },
+      { name: "Bay Leaves / Tejpatta (तमालपत्र)", type: "kharch", category: "Spices / Masala / Condiments", unit: "1 kg Sack", avgRate: 220 },
+      { name: "Kasuri Methi Dry Fenugreek Leaves (कसुरी मेथी)", type: "kharch", category: "Spices / Masala / Condiments", unit: "1 kg Box", avgRate: 280 },
+      { name: "Kaju Tukda / Broken Cashews (ग्रेव्हीसाठी काजू)", type: "kharch", category: "Food Material / Kirana", unit: "1 kg Pkt", avgRate: 680 },
+      { name: "Whole Cashew Nuts / Akkha Kaju (काजू करी)", type: "kharch", category: "Food Material / Kirana", unit: "1 kg Pkt", avgRate: 850 },
+      { name: "Magajtari / Watermelon Seeds (पांढरी ग्रेव्ही)", type: "kharch", category: "Food Material / Kirana", unit: "1 kg Pkt", avgRate: 340 },
+      { name: "Kishmish / Golden Raisins (मनुका)", type: "kharch", category: "Food Material / Kirana", unit: "1 kg Pkt", avgRate: 360 },
+      { name: "White Sesame Seeds / Til (पांढरे तीळ)", type: "kharch", category: "Spices / Masala / Condiments", unit: "2 kg Pkt", avgRate: 460 },
+      { name: "Chaat Masala Box", type: "kharch", category: "Spices / Masala / Condiments", unit: "1 kg Box", avgRate: 380 },
+      { name: "Sambar Masala Powder", type: "kharch", category: "Spices / Masala / Condiments", unit: "1 kg Pkt", avgRate: 380 },
+      { name: "Rasam Powder Box", type: "kharch", category: "Spices / Masala / Condiments", unit: "1 kg Box", avgRate: 400 },
+      { name: "Tamarind / Seedless Chinch (चिंच)", type: "kharch", category: "Spices / Masala / Condiments", unit: "5 kg Slab", avgRate: 600 },
+      { name: "Pure Kolhapuri Jaggery / Gul (गूळ)", type: "kharch", category: "Food Material / Kirana", unit: "10 kg Block", avgRate: 540 },
+      { name: "Refined White Sugar (साखर)", type: "kharch", category: "Tea Powder / Coffee / Sugar", unit: "50 kg Bag", avgRate: 2150 },
+
+      // 8. Tea, Coffee, Cold Beverages & Chinese Supplies
+      { name: "Hotel Special Blend Hotel CTC Tea Powder (हॉटेल चहा पावडर)", type: "kharch", category: "Tea Powder / Coffee / Sugar", unit: "5 kg Bag", avgRate: 1450 },
+      { name: "Assam Dust Leaf Tea Powder", type: "kharch", category: "Tea Powder / Coffee / Sugar", unit: "5 kg Bag", avgRate: 1550 },
+      { name: "South Indian Filter Coffee Powder (80:20 Chicory)", type: "kharch", category: "Tea Powder / Coffee / Sugar", unit: "1 kg Pkt", avgRate: 480 },
+      { name: "Instant Nescafe Coffee Jar", type: "kharch", category: "Tea Powder / Coffee / Sugar", unit: "500g Jar", avgRate: 850 },
+      { name: "Chai Masala Powder (सुंठ, विलायची, दालचिनी)", type: "kharch", category: "Tea Powder / Coffee / Sugar", unit: "500g Jar", avgRate: 350 },
+      { name: "Tomato Ketchup / Tomato Sauce (5kg Dispenser Bag)", type: "kharch", category: "Food Material / Kirana", unit: "5 kg Bag", avgRate: 360 },
+      { name: "Schezwan Sauce / Dip (5kg Tub)", type: "kharch", category: "Food Material / Kirana", unit: "5 kg Tub", avgRate: 600 },
+      { name: "Dark Soya Sauce (5 Litre Can)", type: "kharch", category: "Food Material / Kirana", unit: "5 Litre Can", avgRate: 380 },
+      { name: "Green Chilli Sauce (5 Litre Can)", type: "kharch", category: "Food Material / Kirana", unit: "5 Litre Can", avgRate: 360 },
+      { name: "Red Chilli Sauce (5 Litre Can)", type: "kharch", category: "Food Material / Kirana", unit: "5 Litre Can", avgRate: 360 },
+      { name: "Synthetic Vinegar (5 Litre Can)", type: "kharch", category: "Food Material / Kirana", unit: "5 Litre Can", avgRate: 190 },
+      { name: "Hakka Noodles Dry Bundles", type: "kharch", category: "Food Material / Kirana", unit: "10 kg Box", avgRate: 650 },
+      { name: "Udad Papad 5 inch (उडदाचे पापड)", type: "kharch", category: "Chutney / Pickles / Papad", unit: "5 kg Box", avgRate: 1100 },
+      { name: "Mixed Mango / Lime Pickle (लोणचे)", type: "kharch", category: "Chutney / Pickles / Papad", unit: "5 kg Tub", avgRate: 480 },
+      { name: "Farsan / Special Misal Farsan (चिवडा फरसाण)", type: "kharch", category: "Breakfast / Nashta Material", unit: "10 kg Sack", avgRate: 1400 },
+      { name: "Sev / Nylon Sev (बारीक शेव)", type: "kharch", category: "Breakfast / Nashta Material", unit: "5 kg Box", avgRate: 750 },
+      { name: "Bundi / Boondi (रायता बुंदी)", type: "kharch", category: "Breakfast / Nashta Material", unit: "5 kg Bag", avgRate: 700 },
+
+      // 9. Kitchen Energy, Gas, Water & Utilities
+      { name: "Commercial LPG 19kg Red Gas Cylinder (गॅस टाकी)", type: "kharch", category: "Commercial Gas / LPG Cylinders", unit: "1 Cylinder (19kg)", avgRate: 1850 },
+      { name: "MSEDCL Commercial Electricity Bill", type: "kharch", category: "Electricity Bill (MSEDCL Light Bill)", unit: "Monthly Bill", avgRate: 14500 },
+      { name: "Clean Potable Water Tanker (10,000 Litres)", type: "kharch", category: "Water Bill / Water Tanker Service", unit: "1 Tanker", avgRate: 1200 },
+      { name: "20 Litre Mineral Drinking Water Jars", type: "kharch", category: "Mineral Water / Jars / Bottles", unit: "Per Jar", avgRate: 40 },
+      { name: "500ml Packaged Drinking Water Bottles Box", type: "kharch", category: "Mineral Water / Jars / Bottles", unit: "Box (24 bottles)", avgRate: 190 },
+      { name: "1 Litre Drinking Water Bottles Box", type: "kharch", category: "Mineral Water / Jars / Bottles", unit: "Box (12 bottles)", avgRate: 140 },
+
+      // 10. Packaging, Disposables, Cleaning & POS
+      { name: "Aluminium Food Wrapping Foil Rolls (72m)", type: "kharch", category: "Packaging / Parcel Boxes / Containers", unit: "1 Roll", avgRate: 310 },
+      { name: "Plastic 3-Compartment Meal Delivery Trays", type: "kharch", category: "Packaging / Parcel Boxes / Containers", unit: "100 Pcs Box", avgRate: 480 },
+      { name: "Plastic 5-Compartment Deluxe Thali Trays", type: "kharch", category: "Packaging / Parcel Boxes / Containers", unit: "100 Pcs Box", avgRate: 650 },
+      { name: "Round Plastic Curry Containers with Lid (250ml)", type: "kharch", category: "Packaging / Parcel Boxes / Containers", unit: "100 Pcs Pkt", avgRate: 260 },
+      { name: "Round Plastic Curry Containers with Lid (500ml)", type: "kharch", category: "Packaging / Parcel Boxes / Containers", unit: "100 Pcs Pkt", avgRate: 380 },
+      { name: "Plastic Chutney / Sambhar Small Dabbas (100ml)", type: "kharch", category: "Packaging / Parcel Boxes / Containers", unit: "100 Pcs Pkt", avgRate: 150 },
+      { name: "Printed Kraft Paper Parcel Carry Bags", type: "kharch", category: "Packaging / Parcel Boxes / Containers", unit: "200 Pcs Bundle", avgRate: 550 },
+      { name: "Food Grade Paper Napkins / Tissues", type: "kharch", category: "Tissue Paper / Napkins / Table Rolls", unit: "1000 Pcs Box", avgRate: 220 },
+      { name: "Biodegradable Wooden Spoons & Forks", type: "kharch", category: "Disposable Items (Plates, Spoons, Glasses, Straws)", unit: "100 Pcs Box", avgRate: 120 },
+      { name: "Disposable Paper Drinking Tea Cups (100ml)", type: "kharch", category: "Disposable Items (Plates, Spoons, Glasses, Straws)", unit: "100 Pcs Sleeve", avgRate: 65 },
+      { name: "Commercial Dishwashing Liquid Can (5 Litres)", type: "kharch", category: "Cleaning Materials (Phenyl, Scrubber, Dishwash)", unit: "5L Can", avgRate: 380 },
+      { name: "Floor Cleaner / Herbal Phenyl (5 Litres)", type: "kharch", category: "Cleaning Materials (Phenyl, Scrubber, Dishwash)", unit: "5L Can", avgRate: 290 },
+      { name: "Heavy Duty Kitchen Scrubbers & Steel Wool", type: "kharch", category: "Cleaning Materials (Phenyl, Scrubber, Dishwash)", unit: "Pack of 12", avgRate: 180 },
+      { name: "Liquid Handwash Refill Can (5 Litres)", type: "kharch", category: "Handwash / Sanitizer / Kitchen Gloves", unit: "5L Can", avgRate: 340 },
+      { name: "Heavy Duty Garbage Bags (Black 36x48 inch)", type: "kharch", category: "Garbage Collection / Municipal Waste Charges", unit: "50 Pcs Pkt", avgRate: 280 },
+      { name: "Thermal Billing Paper Rolls (57mm x 20m)", type: "kharch", category: "Software / Billing POS / Thermal Printer Rolls", unit: "10 Rolls Box", avgRate: 240 },
+
+      // 11. Finished Menu & Income Items (जमा / विक्री)
+      // Fast Food, Pav Bhaji & Misal Sales
+      { name: "Special Aaswad Butter Pav Bhaji (बटर पाव भाजी)", type: "jama", category: "Pav Bhaji / Misal Pav / Fast Food Counter", unit: "Per Plate (2 Pav)", avgRate: 140 },
+      { name: "Cheese Butter Pav Bhaji (चीज पाव भाजी)", type: "jama", category: "Pav Bhaji / Misal Pav / Fast Food Counter", unit: "Per Plate", avgRate: 170 },
+      { name: "Jain Butter Pav Bhaji (No Onion/Garlic)", type: "jama", category: "Pav Bhaji / Misal Pav / Fast Food Counter", unit: "Per Plate", avgRate: 150 },
+      { name: "Khada Pav Bhaji (खडा पाव भाजी)", type: "jama", category: "Pav Bhaji / Misal Pav / Fast Food Counter", unit: "Per Plate", avgRate: 160 },
+      { name: "Kolhapuri Spicy Misal Pav (कोल्हापुरी मिसळ पाव)", type: "jama", category: "Pav Bhaji / Misal Pav / Fast Food Counter", unit: "Per Plate (2 Pav)", avgRate: 110 },
+      { name: "Puneri Matki Misal Pav (पुणेरी मिसळ)", type: "jama", category: "Pav Bhaji / Misal Pav / Fast Food Counter", unit: "Per Plate (2 Pav)", avgRate: 100 },
+      { name: "Cheese Dahi Misal Pav (चीज दही मिसळ)", type: "jama", category: "Pav Bhaji / Misal Pav / Fast Food Counter", unit: "Per Plate", avgRate: 140 },
+      { name: "Extra Butter Pav Pair (जोडी बटर पाव)", type: "jama", category: "Pav Bhaji / Misal Pav / Fast Food Counter", unit: "2 Pcs Pav", avgRate: 25 },
+      { name: "Extra Kat / Rassa Bowl (कट रस्सा वाटी)", type: "jama", category: "Pav Bhaji / Misal Pav / Fast Food Counter", unit: "1 Bowl", avgRate: 30 },
+      { name: "Extra Dahi Cup (दही वाटी)", type: "jama", category: "Pav Bhaji / Misal Pav / Fast Food Counter", unit: "1 Cup", avgRate: 25 },
+
+      // Breakfast & South Indian Sales
+      { name: "Special Kanda Poha Plate (कांदे पोहे)", type: "jama", category: "Breakfast & Morning Nashta Sales (नाश्ता विक्री)", unit: "Per Plate", avgRate: 40 },
+      { name: "Crispy Batata Vada Sambar (2 pcs)", type: "jama", category: "Breakfast & Morning Nashta Sales (नाश्ता विक्री)", unit: "Per Plate", avgRate: 60 },
+      { name: "Medu Vada Sambar Plate (2 pcs)", type: "jama", category: "Breakfast & Morning Nashta Sales (नाश्ता विक्री)", unit: "Per Plate", avgRate: 70 },
+      { name: "Soft Steamed Idli Sambar Plate (2 pcs)", type: "jama", category: "Breakfast & Morning Nashta Sales (नाश्ता विक्री)", unit: "Per Plate", avgRate: 60 },
+      { name: "Crispy Plain Dosa", type: "jama", category: "Breakfast & Morning Nashta Sales (नाश्ता विक्री)", unit: "Per Dosa", avgRate: 70 },
+      { name: "Crispy Butter Masala Dosa with Chutney & Sambar", type: "jama", category: "Breakfast & Morning Nashta Sales (नाश्ता विक्री)", unit: "Per Dosa", avgRate: 100 },
+      { name: "Mysore Masala Dosa", type: "jama", category: "Breakfast & Morning Nashta Sales (नाश्ता विक्री)", unit: "Per Dosa", avgRate: 120 },
+      { name: "Cheese Paneer Dosa", type: "jama", category: "Breakfast & Morning Nashta Sales (नाश्ता विक्री)", unit: "Per Dosa", avgRate: 150 },
+      { name: "Onion Tomato Uttapam", type: "jama", category: "Breakfast & Morning Nashta Sales (नाश्ता विक्री)", unit: "Per Plate", avgRate: 95 },
+      { name: "Sabudana Vada Plate (2 pcs) with Curd", type: "jama", category: "Breakfast & Morning Nashta Sales (नाश्ता विक्री)", unit: "Per Plate", avgRate: 75 },
+      { name: "Upma / Sanja Plate", type: "jama", category: "Breakfast & Morning Nashta Sales (नाश्ता विक्री)", unit: "Per Plate", avgRate: 45 },
+      { name: "Sheera / Pineapple Kesari Sheera", type: "jama", category: "Breakfast & Morning Nashta Sales (नाश्ता विक्री)", unit: "Per Plate", avgRate: 50 },
+
+      // Veg Thali & Meals Sales
+      { name: "Aaswad Special Veg Deluxe Thali (अनलिमिटेड थाळी)", type: "jama", category: "Lunch Special & Veg Thali Sales (दुपार जेवण / थाळी)", unit: "Per Thali", avgRate: 190 },
+      { name: "Mini Executive Lunch Veg Thali", type: "jama", category: "Lunch Special & Veg Thali Sales (दुपार जेवण / थाळी)", unit: "Per Thali", avgRate: 130 },
+      { name: "Special Puran Poli Veg Thali", type: "jama", category: "Lunch Special & Veg Thali Sales (दुपार जेवण / थाळी)", unit: "Per Thali", avgRate: 230 },
+      { name: "Maharashtrian Pithla Bhakri Combo (पिठलं भाकरी)", type: "jama", category: "Lunch Special & Veg Thali Sales (दुपार जेवण / थाळी)", unit: "Full Plate", avgRate: 140 },
+      { name: "Sev Bhaji with 2 Chapatis / Bhakri", type: "jama", category: "Lunch Special & Veg Thali Sales (दुपार जेवण / थाळी)", unit: "Full Plate", avgRate: 130 },
+
+      // Main Course Subzis & Breads Sales
+      { name: "Paneer Butter Masala (पनीर बटर मसाला)", type: "jama", category: "Restaurant Table Dining Sales (हॉल जेवण विक्री)", unit: "Full Portion", avgRate: 220 },
+      { name: "Paneer Tikka Masala", type: "jama", category: "Restaurant Table Dining Sales (हॉल जेवण विक्री)", unit: "Full Portion", avgRate: 230 },
+      { name: "Palak Paneer", type: "jama", category: "Restaurant Table Dining Sales (हॉल जेवण विक्री)", unit: "Full Portion", avgRate: 200 },
+      { name: "Shahi Kaju Curry / Kaju Masala", type: "jama", category: "Restaurant Table Dining Sales (हॉल जेवण विक्री)", unit: "Full Portion", avgRate: 250 },
+      { name: "Veg Handi / Veg Kolhapuri", type: "jama", category: "Restaurant Table Dining Sales (हॉल जेवण विक्री)", unit: "Full Portion", avgRate: 190 },
+      { name: "Veg Maratha / Veg Bhuna", type: "jama", category: "Restaurant Table Dining Sales (हॉल जेवण विक्री)", unit: "Full Portion", avgRate: 210 },
+      { name: "Dal Fry / Dal Tadka", type: "jama", category: "Restaurant Table Dining Sales (हॉल जेवण विक्री)", unit: "Full Bowl", avgRate: 140 },
+      { name: "Dal Khichdi Tadka Bowl", type: "jama", category: "Restaurant Table Dining Sales (हॉल जेवण विक्री)", unit: "Full Bowl", avgRate: 160 },
+      { name: "Steamed Kolam Rice / Jeera Rice", type: "jama", category: "Restaurant Table Dining Sales (हॉल जेवण विक्री)", unit: "Full Portion", avgRate: 120 },
+      { name: "Veg Dum Biryani Handi with Raita", type: "jama", category: "Restaurant Table Dining Sales (हॉल जेवण विक्री)", unit: "Handi (Serves 2)", avgRate: 240 },
+      { name: "Butter Tandoori Roti", type: "jama", category: "Restaurant Table Dining Sales (हॉल जेवण विक्री)", unit: "Per Roti", avgRate: 25 },
+      { name: "Butter Garlic Naan", type: "jama", category: "Restaurant Table Dining Sales (हॉल जेवण विक्री)", unit: "Per Naan", avgRate: 65 },
+      { name: "Ghee Chapati / Fulka (तूप चपाती)", type: "jama", category: "Restaurant Table Dining Sales (हॉल जेवण विक्री)", unit: "Per Chapati", avgRate: 15 },
+      { name: "Jowar / Bajra Hot Bhakri (गरमागरम भाकरी)", type: "jama", category: "Restaurant Table Dining Sales (हॉल जेवण विक्री)", unit: "Per Bhakri", avgRate: 30 },
+
+      // Chinese & Starters Sales
+      { name: "Veg Crispy Starter Plate", type: "jama", category: "Restaurant Table Dining Sales (हॉल जेवण विक्री)", unit: "Full Plate", avgRate: 170 },
+      { name: "Paneer Chilli Dry", type: "jama", category: "Restaurant Table Dining Sales (हॉल जेवण विक्री)", unit: "Full Plate", avgRate: 210 },
+      { name: "Veg Hakka Noodles", type: "jama", category: "Restaurant Table Dining Sales (हॉल जेवण विक्री)", unit: "Full Plate", avgRate: 150 },
+      { name: "Veg Schezwan Fried Rice", type: "jama", category: "Restaurant Table Dining Sales (हॉल जेवण विक्री)", unit: "Full Plate", avgRate: 160 },
+      { name: "Veg Manchurian Gravy", type: "jama", category: "Restaurant Table Dining Sales (हॉल जेवण विक्री)", unit: "Full Plate", avgRate: 150 },
+
+      // Teas, Cold Beverages & Desserts Sales
+      { name: "Special Cutting Masala Chai (कटिंग चहा)", type: "jama", category: "Tea & Coffee Counter Sales (चहा व कॉफी काउंटर)", unit: "Per Cup", avgRate: 15 },
+      { name: "Full Special Masala Milk Tea (स्पेशल कप चहा)", type: "jama", category: "Tea & Coffee Counter Sales (चहा व कॉफी काउंटर)", unit: "Per Cup", avgRate: 25 },
+      { name: "South Indian Filter Coffee", type: "jama", category: "Tea & Coffee Counter Sales (चहा व कॉफी काउंटर)", unit: "Per Cup", avgRate: 30 },
+      { name: "Fresh Sweet Lassi (दही लस्सी)", type: "jama", category: "Fresh Juice & Beverage Sales", unit: "Per Glass", avgRate: 60 },
+      { name: "Masala Chaas / Spiced Buttermilk", type: "jama", category: "Fresh Juice & Beverage Sales", unit: "Per Glass", avgRate: 30 },
+      { name: "Fresh Mosambi / Orange Juice", type: "jama", category: "Fresh Juice & Beverage Sales", unit: "Per Glass", avgRate: 70 },
+      { name: "Gulab Jamun Plate (2 pcs)", type: "jama", category: "Ice Cream & Dessert Sales", unit: "Per Plate", avgRate: 50 },
+      { name: "Vanilla / Kesar Pista Ice Cream Scoop", type: "jama", category: "Ice Cream & Dessert Sales", unit: "Per Scoop", avgRate: 40 },
+      { name: "Packaged 1L Drinking Water Bottle", type: "jama", category: "Packaged Drinking Water Sales", unit: "Per Bottle", avgRate: 20 },
+
+      // Subscriptions, Catering & Bulk Party Orders
+      { name: "Direct WhatsApp Delivery Order Parcel", type: "jama", category: "Direct WhatsApp Delivery Orders", unit: "Per Parcel Order", avgRate: 450 },
+      { name: "Corporate Industrial Veg Tiffin Box (MIDC डबा)", type: "jama", category: "Corporate Lunch Boxes / Industrial Tiffin Services", unit: "Per Box", avgRate: 100 },
+      { name: "Student Monthly Veg Meal Subscription Pass", type: "jama", category: "Corporate Lunch Boxes / Industrial Tiffin Services", unit: "Monthly Pass", avgRate: 2600 },
+      { name: "Outdoor Catering Deluxe Veg Buffet (लग्न/समारंभ जेवण)", type: "jama", category: "Catering & Outdoor Bulk Event Orders", unit: "Per Head (Plate)", avgRate: 320 },
+      { name: "Birthday / Kitty Party Hall Booking Package", type: "jama", category: "Party / Birthday / Banquet Hall Bookings", unit: "Per Event (50 Pax)", avgRate: 16500 },
+      { name: "Empty Oil 15L Tin Scrap Sale (रिकामे डबे विक्री)", type: "jama", category: "Scrap / Empty Oil Tins & Bottle Disposal Sale", unit: "Per Tin", avgRate: 35 }
+    ];
+
+    // 25 Staff Members from Excel Sheet (Starting with 0 advance)
+    const DEFAULT_STAFF_LIST = [
+      { name: "Balaram Vastad", role: "Head Chef / Master Cook", baseSalary: 28000, advance: 0 },
+      { name: "Deepak Kumar", role: "Tandoor & Roti Cook", baseSalary: 18000, advance: 0 },
+      { name: "Kuldeep", role: "South Indian & Dosa Chef", baseSalary: 17500, advance: 0 },
+      { name: "Bhola Kitchen", role: "Assistant Cook", baseSalary: 15000, advance: 0 },
+      { name: "Gaurav", role: "Pari / Gravy Master", baseSalary: 16000, advance: 0 },
+      { name: "Kancha Caption", role: "Dining Hall Captain", baseSalary: 16500, advance: 0 },
+      { name: "Vaijnath Helper", role: "Kitchen Utility Helper", baseSalary: 12000, advance: 0 },
+      { name: "Sourabh", role: "Waiter / Service Staff", baseSalary: 13000, advance: 0 },
+      { name: "Prins", role: "Waiter / Service Staff", baseSalary: 13000, advance: 0 },
+      { name: "Raj Kumar", role: "Counter Billing & Cashier", baseSalary: 17000, advance: 0 },
+      { name: "Swati", role: "Parcel Packing & Dispatch", baseSalary: 12500, advance: 0 },
+      { name: "Ajay Kumar", role: "Tea & Beverage Maker", baseSalary: 13500, advance: 0 },
+      { name: "Mamta", role: "Vegetable Prep & Peeling", baseSalary: 11000, advance: 0 },
+      { name: "Soyab", role: "Kitchen Helper", baseSalary: 12000, advance: 0 },
+      { name: "Roshan", role: "Waiter", baseSalary: 12500, advance: 0 },
+      { name: "Golu Cainese", role: "Chinese Wok Cook", baseSalary: 17000, advance: 0 },
+      { name: "Bramha", role: "Kitchen Helper", baseSalary: 11500, advance: 0 },
+      { name: "Sufiyan Helper", role: "Plate & Table Clearer", baseSalary: 11000, advance: 0 },
+      { name: "Ali Helper", role: "Dishwashing & Cleanliness", baseSalary: 11500, advance: 0 },
+      { name: "Sandeep Kumar", role: "Store & Inventory Receiver", baseSalary: 15500, advance: 0 },
+      { name: "Jeevan Paliya", role: "Waiter", baseSalary: 12500, advance: 0 },
+      { name: "Bhande Maushi Sakal", role: "Morning Dishwashing & Cleaning", baseSalary: 10500, advance: 0 },
+      { name: "Laxmi Maushi", role: "Evening Dishwashing & Cleaning", baseSalary: 10500, advance: 0 },
+      { name: "Deepu Budha", role: "Table & Hall Cleaning", baseSalary: 11000, advance: 0 },
+      { name: "Upendra", role: "Delivery & Local Procurement", baseSalary: 13500, advance: 0 }
+    ];
+
+    // Application state
+    let entries = [];
+    let suppliers = [];
+    let customers = [];
+    let staffMembers = [];
+    
+    // Live date helper: Automatically pick today's current date
+    const todayISOString = new Date().toISOString().split('T')[0];
+    let selectedDate = todayISOString;
+    let activeMonthlyMonth = todayISOString.substring(0, 7);
+    let currentRankedPeriod = "year";
+    let currentPayModePeriod = "today";
+
+    // Chart instances
+    let monthlyTrendChartInstance = null;
+    let expenseCategoryDonutInstance = null;
+
+    // --------------------------------------------
+    // 2. INITIALIZATION
+    // --------------------------------------------
+    window.onload = function () {
+      initAuth();
+      initClock();
+      loadAllData();
+      syncSelectedDate(todayISOString);
+      renderAllModules();
+    };
+
+    function initClock() {
+      const clockEl = document.getElementById('liveClockText');
+      setInterval(() => {
+        const now = new Date();
+        clockEl.textContent = now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      }, 1000);
+    }
+
+    function loadAllData() {
+      // Check if user has initialized clean real dataset
+      const savedEntries = localStorage.getItem(LOCAL_STORAGE_KEY_ENTRIES);
+      if (savedEntries !== null) {
+        try { entries = JSON.parse(savedEntries) || []; } catch(e) { entries = []; }
+      } else {
+        entries = [];
+        saveEntries();
+      }
+
+      // Suppliers
+      const savedVendors = localStorage.getItem(LOCAL_STORAGE_KEY_VENDORS);
+      if (savedVendors !== null) {
+        try { suppliers = JSON.parse(savedVendors) || []; } catch(e) { suppliers = []; }
+      } else {
+        suppliers = [];
+        saveVendors();
+      }
+
+      // Customers
+      const savedCust = localStorage.getItem(LOCAL_STORAGE_KEY_CUSTOMERS);
+      if (savedCust !== null) {
+        try { customers = JSON.parse(savedCust) || []; } catch(e) { customers = []; }
+      } else {
+        customers = [];
+        saveCustomers();
+      }
+
+      // Staff (pre-loaded 25 staff members with 0 advance)
+      const savedStaff = localStorage.getItem(LOCAL_STORAGE_KEY_STAFF);
+      if (savedStaff !== null) {
+        try { staffMembers = JSON.parse(savedStaff) || [...DEFAULT_STAFF_LIST]; } catch(e) { staffMembers = [...DEFAULT_STAFF_LIST]; }
+      } else {
+        staffMembers = [...DEFAULT_STAFF_LIST];
+        saveStaff();
+      }
+    }
+
+    function saveEntries() { localStorage.setItem(LOCAL_STORAGE_KEY_ENTRIES, JSON.stringify(entries)); }
+    function saveVendors() { localStorage.setItem(LOCAL_STORAGE_KEY_VENDORS, JSON.stringify(suppliers)); }
+    function saveCustomers() { localStorage.setItem(LOCAL_STORAGE_KEY_CUSTOMERS, JSON.stringify(customers)); }
+    function saveStaff() { localStorage.setItem(LOCAL_STORAGE_KEY_STAFF, JSON.stringify(staffMembers)); }
+
+    function clearAllDataToZero() {
+      const confirmAction = window.prompt("Are you sure you want to reset all records to ₹0? Type 'RESET' to confirm:");
+      if (confirmAction !== 'RESET') return;
+
+      entries = [];
+      suppliers = [];
+      customers = [];
+      staffMembers = DEFAULT_STAFF_LIST.map(st => ({ ...st, advance: 0 }));
+
+      saveEntries();
+      saveVendors();
+      saveCustomers();
+      saveStaff();
+
+      renderAllModules();
+      showToast("All data successfully cleared to ₹0. Ready for live restaurant entries!", "check");
+    }
+
+    // --------------------------------------------
+    // 3. MASTER RENDER ENGINE
+    // --------------------------------------------
+    function renderAllModules() {
+      renderKPICards();
+      renderPaymentModeBreakdown();
+      renderAdvisorDiagnostics();
+      renderHighToMinRanked();
+      renderItemMasterTable();
+      renderDailyRegister();
+      renderMonthlyModule();
+      renderYearlyMasterTable();
+      renderPayablesTable();
+      renderReceivablesTable();
+      renderStaffPayrollTable();
+      renderCharts();
+    }
+
+    function syncSelectedDate(newDate) {
+      selectedDate = newDate;
+      document.getElementById('kpiDatePicker').value = newDate;
+      renderKPICards();
+      renderDailyRegister();
+    }
+
+    function formatINR(val) {
+      const num = parseFloat(val) || 0;
+      return "₹" + num.toLocaleString('en-IN', { maximumFractionDigits: 0 });
+    }
+
+    function calcPLMargin(income, expense) {
+      const inc = parseFloat(income) || 0;
+      const exp = parseFloat(expense) || 0;
+      if (inc <= 0 && exp <= 0) return { pct: 0, str: "0.0% Margin", isProfit: true };
+      if (inc <= 0 && exp > 0) return { pct: -100, str: "-100% Deficit", isProfit: false };
+      const net = inc - exp;
+      const pct = (net / inc) * 100;
+      const isProfit = net >= 0;
+      return {
+        pct: pct,
+        str: `${isProfit ? '+' : ''}${pct.toFixed(1)}% ${isProfit ? 'Profit' : 'Loss'}`,
+        isProfit: isProfit
+      };
+    }
+
+    // --------------------------------------------
+    // 4. TOP EXECUTIVE KPIS & PROFIT/LOSS METRICS
+    // --------------------------------------------
+    function renderKPICards() {
+      let todayInc = 0;
+      let todayExp = 0;
+      let todayIncEntries = 0;
+      let todayExpEntries = 0;
+      let yrInc = 0;
+      let yrExp = 0;
+
+      entries.forEach(e => {
+        const amt = parseFloat(e.amount) || 0;
+        if (e.date === selectedDate) {
+          if (e.type === 'jama') {
+            todayInc += amt;
+            todayIncEntries++;
+          } else if (e.type === 'kharch') {
+            todayExp += amt;
+            todayExpEntries++;
+          }
+        }
+        if (e.type === 'jama') yrInc += amt;
+        else if (e.type === 'kharch') yrExp += amt;
+      });
+
+      // Today's metrics
+      const todayNet = todayInc - todayExp;
+      const todayMargin = calcPLMargin(todayInc, todayExp);
+
+      document.getElementById('kpiTodayIncome').textContent = formatINR(todayInc);
+      document.getElementById('kpiTodayIncomeEntries').textContent = `${todayIncEntries} sales entries today`;
+      document.getElementById('kpiTodayExpense').textContent = formatINR(todayExp);
+      document.getElementById('kpiTodayExpenseEntries').textContent = `${todayExpEntries} expense bills today`;
+      document.getElementById('kpiTodayNetProfit').textContent = formatINR(todayNet);
+
+      const marginEl = document.getElementById('kpiTodayMarginPercent');
+      marginEl.textContent = todayMargin.str;
+      marginEl.className = todayInc === 0 && todayExp === 0
+        ? "text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600"
+        : (todayMargin.isProfit 
+            ? "text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800"
+            : "text-[10px] font-black px-2 py-0.5 rounded-full bg-rose-100 text-rose-800");
+
+      // Yearly Cumulative
+      const yrNet = yrInc - yrExp;
+      const yrMargin = calcPLMargin(yrInc, yrExp);
+      document.getElementById('kpiYearlyIncome').textContent = formatINR(yrInc);
+      document.getElementById('kpiYearlyNetProfit').textContent = formatINR(yrNet);
+
+      const yrMarginEl = document.getElementById('kpiYearlyMarginPercent');
+      yrMarginEl.textContent = `${yrMargin.str} (FY 26-27)`;
+      yrMarginEl.className = yrInc === 0 && yrExp === 0
+        ? "text-[10px] font-black px-2 py-0.5 rounded-full bg-slate-700 text-slate-300"
+        : (yrMargin.isProfit 
+            ? "text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40"
+            : "text-[10px] font-black px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/40");
+
+      // Balances
+      let totalVendorDues = suppliers.reduce((acc, s) => acc + (parseFloat(s.remainingDue) || 0), 0);
+      let totalCustCredits = customers.reduce((acc, c) => acc + (parseFloat(c.remainingDue) || 0), 0);
+      let totalStaffAdvances = staffMembers.reduce((acc, st) => acc + (parseFloat(st.advance) || 0), 0);
+
+      document.getElementById('kpiVendorDuesTotal').textContent = formatINR(totalVendorDues);
+      document.getElementById('kpiCustomerCreditsTotal').textContent = formatINR(totalCustCredits);
+      document.getElementById('kpiStaffAdvTotal').textContent = formatINR(totalStaffAdvances);
+    }
+
+    // --------------------------------------------
+    // 5. 3 PAYMENT MODES LIVE LEDGER MATRIX
+    // --------------------------------------------
+    function setPayModePeriod(period) {
+      currentPayModePeriod = period;
+      const todayBtn = document.getElementById('pmPeriod-today');
+      const yearBtn = document.getElementById('pmPeriod-year');
+      if (period === 'today') {
+        todayBtn.className = "px-2.5 py-1 rounded-lg bg-white text-indigo-700 shadow-xs transition";
+        yearBtn.className = "px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition";
+      } else {
+        yearBtn.className = "px-2.5 py-1 rounded-lg bg-white text-indigo-700 shadow-xs transition";
+        todayBtn.className = "px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition";
+      }
+      renderPaymentModeBreakdown();
+    }
+
+    function renderPaymentModeBreakdown() {
+      const modeStats = {
+        'Cash': { inc: 0, exp: 0 },
+        'Online (Aaswad Bank)': { inc: 0, exp: 0 },
+        'Online (Yash Bank)': { inc: 0, exp: 0 }
+      };
+
+      const targetEntries = currentPayModePeriod === 'today'
+        ? entries.filter(e => e.date === selectedDate)
+        : entries;
+
+      targetEntries.forEach(e => {
+        const amt = parseFloat(e.amount) || 0;
+        let mode = e.mode || 'Cash';
+        if (mode.includes('Aaswad')) mode = 'Online (Aaswad Bank)';
+        else if (mode.includes('Yash')) mode = 'Online (Yash Bank)';
+        else mode = 'Cash';
+
+        if (modeStats[mode]) {
+          if (e.type === 'jama') modeStats[mode].inc += amt;
+          else if (e.type === 'kharch') modeStats[mode].exp += amt;
+        }
+      });
+
+      // Cash
+      const cashNet = modeStats['Cash'].inc - modeStats['Cash'].exp;
+      document.getElementById('pmInflowCash').textContent = formatINR(modeStats['Cash'].inc);
+      document.getElementById('pmOutflowCash').textContent = formatINR(modeStats['Cash'].exp);
+      document.getElementById('pmNetCash').textContent = (cashNet >= 0 ? '+' : '') + formatINR(cashNet);
+      document.getElementById('pmNetCash').className = `text-xs font-black px-2 py-0.5 rounded-full bg-white border ${cashNet >= 0 ? 'text-amber-800 border-amber-200' : 'text-rose-800 border-rose-200'}`;
+
+      // Aaswad Bank
+      const aaswadNet = modeStats['Online (Aaswad Bank)'].inc - modeStats['Online (Aaswad Bank)'].exp;
+      document.getElementById('pmInflowAaswad').textContent = formatINR(modeStats['Online (Aaswad Bank)'].inc);
+      document.getElementById('pmOutflowAaswad').textContent = formatINR(modeStats['Online (Aaswad Bank)'].exp);
+      document.getElementById('pmNetAaswad').textContent = (aaswadNet >= 0 ? '+' : '') + formatINR(aaswadNet);
+      document.getElementById('pmNetAaswad').className = `text-xs font-black px-2 py-0.5 rounded-full bg-white border ${aaswadNet >= 0 ? 'text-blue-800 border-blue-200' : 'text-rose-800 border-rose-200'}`;
+
+      // Yash Bank
+      const yashNet = modeStats['Online (Yash Bank)'].inc - modeStats['Online (Yash Bank)'].exp;
+      document.getElementById('pmInflowYash').textContent = formatINR(modeStats['Online (Yash Bank)'].inc);
+      document.getElementById('pmOutflowYash').textContent = formatINR(modeStats['Online (Yash Bank)'].exp);
+      document.getElementById('pmNetYash').textContent = (yashNet >= 0 ? '+' : '') + formatINR(yashNet);
+      document.getElementById('pmNetYash').className = `text-xs font-black px-2 py-0.5 rounded-full bg-white border ${yashNet >= 0 ? 'text-purple-800 border-purple-200' : 'text-rose-800 border-rose-200'}`;
+    }
+
+    // --------------------------------------------
+    // 6. BUSINESS IMPROVEMENT ADVISOR DIAGNOSTICS
+    // --------------------------------------------
+    function renderAdvisorDiagnostics() {
+      let totalExp = 0;
+      let totalInc = 0;
+
+      entries.forEach(e => {
+        const amt = parseFloat(e.amount) || 0;
+        if (e.type === 'kharch') totalExp += amt;
+        else if (e.type === 'jama') totalInc += amt;
+      });
+
+      let score = 80;
+      const margin = totalInc > 0 ? ((totalInc - totalExp) / totalInc) * 100 : 0;
+      if (margin >= 25) score += 10;
+      else if (margin < 0) score -= 15;
+
+      let totalVendorDues = suppliers.reduce((acc, s) => acc + (parseFloat(s.remainingDue) || 0), 0);
+      let totalCustCredits = customers.reduce((acc, c) => acc + (parseFloat(c.remainingDue) || 0), 0);
+      if (totalVendorDues > 50000) score -= 5;
+      if (totalCustCredits > 50000) score -= 5;
+      score = Math.min(99, Math.max(50, score));
+
+      document.getElementById('advisorHealthScore').textContent = `${score} / 100`;
+    }
+
+    // --------------------------------------------
+    // 7. RANKED HIGH-TO-MIN AUTO HIERARCHY
+    // --------------------------------------------
+    function setRankedPeriod(period) {
+      currentRankedPeriod = period;
+      ['today', 'month', 'year'].forEach(p => {
+        const btn = document.getElementById(`rankBtn-${p}`);
+        if (p === period) {
+          btn.className = "px-3 py-1.5 rounded-lg bg-white text-indigo-700 shadow-sm transition";
+        } else {
+          btn.className = "px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition";
+        }
+      });
+      renderHighToMinRanked();
+    }
+
+    function renderHighToMinRanked() {
+      let filtered = [];
+      const curMonthPrefix = selectedDate.substring(0, 7);
+
+      if (currentRankedPeriod === 'today') {
+        filtered = entries.filter(e => e.date === selectedDate);
+      } else if (currentRankedPeriod === 'month') {
+        filtered = entries.filter(e => e.date && e.date.startsWith(curMonthPrefix));
+      } else {
+        filtered = [...entries];
+      }
+
+      const expCatMap = {};
+      let totalExp = 0;
+      const incCatMap = {};
+      let totalInc = 0;
+
+      filtered.forEach(e => {
+        const amt = parseFloat(e.amount) || 0;
+        if (e.type === 'kharch') {
+          totalExp += amt;
+          if (!expCatMap[e.category]) expCatMap[e.category] = { amount: 0, count: 0 };
+          expCatMap[e.category].amount += amt;
+          expCatMap[e.category].count++;
+        } else if (e.type === 'jama') {
+          totalInc += amt;
+          if (!incCatMap[e.category]) incCatMap[e.category] = { amount: 0, count: 0 };
+          incCatMap[e.category].amount += amt;
+          incCatMap[e.category].count++;
+        }
+      });
+
+      document.getElementById('rankedTotalExpLabel').textContent = `${formatINR(totalExp)} Total`;
+      document.getElementById('rankedTotalIncLabel').textContent = `${formatINR(totalInc)} Total`;
+
+      // Render Expense Categories
+      const sortedExpCats = Object.keys(expCatMap).sort((a, b) => expCatMap[b].amount - expCatMap[a].amount);
+      const expTbody = document.getElementById('rankedExpenseDeptTbody');
+      expTbody.innerHTML = '';
+
+      if (sortedExpCats.length === 0) {
+        expTbody.innerHTML = `<tr><td colspan="4" class="py-4 text-center text-slate-400">No expense entries in this period</td></tr>`;
+      } else {
+        sortedExpCats.forEach((cat, idx) => {
+          const item = expCatMap[cat];
+          const pct = totalExp > 0 ? ((item.amount / totalExp) * 100).toFixed(1) : 0;
+          const tr = document.createElement('tr');
+          tr.className = "hover:bg-slate-50 transition";
+          tr.innerHTML = `
+            <td class="py-2.5 font-bold text-slate-800 flex items-center gap-2">
+              <span class="w-5 h-5 rounded-full ${idx === 0 ? 'bg-rose-600 text-white' : 'bg-slate-200 text-slate-700'} text-[10px] flex items-center justify-center font-black">${idx + 1}</span>
+              <span>${cat}</span>
+            </td>
+            <td class="py-2.5 text-center text-slate-500 font-semibold">${item.count} bills</td>
+            <td class="py-2.5 text-right font-black text-rose-600">${formatINR(item.amount)}</td>
+            <td class="py-2.5 text-right font-bold text-slate-600">
+              <div class="flex items-center justify-end gap-1.5">
+                <span>${pct}%</span>
+                <div class="w-12 bg-slate-100 rounded-full h-1.5 overflow-hidden">
+                  <div class="bg-rose-500 h-1.5 rounded-full" style="width: ${pct}%"></div>
+                </div>
+              </div>
+            </td>
+          `;
+          expTbody.appendChild(tr);
+        });
+      }
+
+      // Render Income Categories
+      const sortedIncCats = Object.keys(incCatMap).sort((a, b) => incCatMap[b].amount - incCatMap[a].amount);
+      const incTbody = document.getElementById('rankedIncomeDeptTbody');
+      incTbody.innerHTML = '';
+
+      if (sortedIncCats.length === 0) {
+        incTbody.innerHTML = `<tr><td colspan="4" class="py-4 text-center text-slate-400">No income entries in this period</td></tr>`;
+      } else {
+        sortedIncCats.forEach((cat, idx) => {
+          const item = incCatMap[cat];
+          const pct = totalInc > 0 ? ((item.amount / totalInc) * 100).toFixed(1) : 0;
+          const tr = document.createElement('tr');
+          tr.className = "hover:bg-slate-50 transition";
+          tr.innerHTML = `
+            <td class="py-2.5 font-bold text-slate-800 flex items-center gap-2">
+              <span class="w-5 h-5 rounded-full ${idx === 0 ? 'bg-emerald-600 text-white' : 'bg-slate-200 text-slate-700'} text-[10px] flex items-center justify-center font-black">${idx + 1}</span>
+              <span>${cat}</span>
+            </td>
+            <td class="py-2.5 text-center text-slate-500 font-semibold">${item.count} entries</td>
+            <td class="py-2.5 text-right font-black text-emerald-600">${formatINR(item.amount)}</td>
+            <td class="py-2.5 text-right font-bold text-slate-600">
+              <div class="flex items-center justify-end gap-1.5">
+                <span>${pct}%</span>
+                <div class="w-12 bg-slate-100 rounded-full h-1.5 overflow-hidden">
+                  <div class="bg-emerald-500 h-1.5 rounded-full" style="width: ${pct}%"></div>
+                </div>
+              </div>
+            </td>
+          `;
+          incTbody.appendChild(tr);
+        });
+      }
+    }
+
+    // --------------------------------------------
+    // 8. ITEM & MATERIAL MASTER DIRECTORY TABLE
+    // --------------------------------------------
+    function renderItemMasterTable() {
+      const q = (document.getElementById('itemMasterSearch') ? document.getElementById('itemMasterSearch').value : '').toLowerCase();
+      const filterType = document.getElementById('itemMasterFilterType') ? document.getElementById('itemMasterFilterType').value : 'ALL';
+      const tbody = document.getElementById('itemMasterTableTbody');
+      if (!tbody) return;
+
+      tbody.innerHTML = '';
+
+      let filtered = RESTAURANT_ITEM_CATALOG.filter(it => {
+        const matchesQuery = it.name.toLowerCase().includes(q) || it.category.toLowerCase().includes(q);
+        if (filterType === 'ALL') return matchesQuery;
+        if (filterType === 'EXPENSE') return matchesQuery && it.type === 'kharch';
+        if (filterType === 'INCOME') return matchesQuery && it.type === 'jama';
+        return matchesQuery;
+      });
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="py-6 text-center text-slate-400">No matching items found.</td></tr>`;
+        return;
+      }
+
+      filtered.forEach((it, idx) => {
+        const isInc = it.type === 'jama';
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
+        tr.innerHTML = `
+          <td class="px-4 py-2.5 font-bold text-slate-400 text-[11px]">${idx + 1}</td>
+          <td class="px-4 py-2.5 font-bold text-slate-900 flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full ${isInc ? 'bg-emerald-500' : 'bg-rose-500'}"></span>
+            <span>${it.name}</span>
+          </td>
+          <td class="px-4 py-2.5">
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${isInc ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}">
+              ${isInc ? 'Income (जमा)' : 'Expense (खर्च)'}
+            </span>
+          </td>
+          <td class="px-4 py-2.5 text-slate-600 font-medium">${it.category}</td>
+          <td class="px-4 py-2.5 text-center font-mono text-[11px] text-slate-500">${it.unit}</td>
+          <td class="px-4 py-2.5 text-right font-black ${isInc ? 'text-emerald-600' : 'text-slate-900'}">${formatINR(it.avgRate)}</td>
+          <td class="px-4 py-2.5 text-center no-print">
+            <button onclick="quickAddFromCatalog('${it.name.replace(/'/g, "\\'")}')" class="px-2.5 py-1 rounded-lg bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold text-[11px] transition shadow-xs">
+              <i class="fa-solid fa-plus mr-1"></i>Add Entry
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function filterItemMasterTable() {
+      renderItemMasterTable();
+    }
+
+    function quickAddFromCatalog(itemName) {
+      const item = RESTAURANT_ITEM_CATALOG.find(i => i.name === itemName);
+      if (!item) return;
+
+      openEntryModal();
+      
+      const radio = document.querySelector(`input[name="entryType"][value="${item.type}"]`);
+      if (radio) {
+        radio.checked = true;
+        onTypeChanged();
+      }
+
+      document.getElementById('entryQuickItemSelect').value = item.name;
+      document.getElementById('entryCategory').value = item.category;
+      document.getElementById('entryDetails').value = `${item.name} (${item.unit})`;
+      document.getElementById('entryAmount').value = item.avgRate;
+      document.getElementById('entryAmount').focus();
+    }
+
+    // --------------------------------------------
+    // 9. DAILY CASHBOOK REGISTER
+    // --------------------------------------------
+    function renderDailyRegister() {
+      document.getElementById('dailyStripDate').textContent = selectedDate;
+
+      const dailyTx = entries.filter(e => e.date === selectedDate);
+      let dayInc = 0;
+      let dayExp = 0;
+
+      const tbody = document.getElementById('dailyTransactionsTbody');
+      tbody.innerHTML = '';
+
+      if (dailyTx.length === 0) {
+        document.getElementById('dailyEmptyNotice').classList.remove('hidden');
+      } else {
+        document.getElementById('dailyEmptyNotice').classList.add('hidden');
+        dailyTx.forEach(tx => {
+          const amt = parseFloat(tx.amount) || 0;
+          const isInc = tx.type === 'jama';
+          if (isInc) dayInc += amt; else dayExp += amt;
+
+          const tr = document.createElement('tr');
+          tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
+          tr.innerHTML = `
+            <td class="px-4 py-3 font-mono text-[11px] text-slate-500">${tx.id || 'TX'}</td>
+            <td class="px-4 py-3">
+              <span class="px-2 py-0.5 rounded-full font-bold text-[10px] ${isInc ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}">
+                ${isInc ? 'Income / जमा' : 'Expense / खर्च'}
+              </span>
+            </td>
+            <td class="px-4 py-3 font-bold text-slate-900">${tx.category}</td>
+            <td class="px-4 py-3 text-slate-600 max-w-xs truncate" title="${tx.details}">${tx.details || '-'}</td>
+            <td class="px-4 py-3 text-slate-500 font-medium">${tx.mode || 'Cash'}</td>
+            <td class="px-4 py-3 text-slate-700 font-medium">${tx.party || '-'}</td>
+            <td class="px-4 py-3 text-right font-black ${isInc ? 'text-emerald-600' : 'text-rose-600'}">
+              ${isInc ? '+' : '-'}${formatINR(amt)}
+            </td>
+            <td class="px-4 py-3 text-center no-print">
+              <button onclick="deleteEntry('${tx.id}')" class="text-slate-400 hover:text-rose-600 p-1 transition" title="Delete Entry">
+                <i class="fa-solid fa-trash-can"></i>
+              </button>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+      }
+
+      // Update Strip Stats
+      const dayNet = dayInc - dayExp;
+      const dayMargin = calcPLMargin(dayInc, dayExp);
+      document.getElementById('dailyStripInflow').textContent = formatINR(dayInc);
+      document.getElementById('dailyStripOutflow').textContent = formatINR(dayExp);
+      document.getElementById('dailyStripSurplus').textContent = formatINR(dayNet);
+      document.getElementById('dailyStripClosing').textContent = formatINR(dayNet);
+
+      const marginEl = document.getElementById('dailyStripMargin');
+      marginEl.textContent = dayMargin.str;
+      marginEl.className = dayInc === 0 && dayExp === 0
+        ? "text-xs px-2 py-0.5 rounded-full bg-slate-700 text-slate-300"
+        : (dayMargin.isProfit 
+            ? "text-xs px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
+            : "text-xs px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30");
+    }
+
+    function filterDailyEntries() {
+      const q = (document.getElementById('dailyTableSearch') ? document.getElementById('dailyTableSearch').value : '').toLowerCase();
+      const modeFilter = document.getElementById('dailyModeFilter') ? document.getElementById('dailyModeFilter').value : 'ALL';
+      const rows = document.querySelectorAll('#dailyTransactionsTbody tr');
+      rows.forEach(r => {
+        const text = r.textContent.toLowerCase();
+        const matchesQ = text.includes(q);
+        const matchesMode = (modeFilter === 'ALL') || text.includes(modeFilter.toLowerCase());
+        r.style.display = (matchesQ && matchesMode) ? '' : 'none';
+      });
+    }
+
+    function deleteEntry(id) {
+      if (!confirm("Are you sure you want to delete this transaction entry?")) return;
+      entries = entries.filter(e => e.id !== id);
+      saveEntries();
+      renderAllModules();
+      showToast("Transaction deleted successfully", "trash");
+    }
+
+    // --------------------------------------------
+    // 10. MONTHLY STATEMENT & PROGRESSION
+    // --------------------------------------------
+    function renderMonthlyModule() {
+      const pillContainer = document.getElementById('monthSelectorPills');
+      pillContainer.innerHTML = '';
+      FY_MONTHS.forEach(m => {
+        const btn = document.createElement('button');
+        const isActive = m.id === activeMonthlyMonth;
+        btn.className = `px-3 py-1 rounded-lg text-xs font-bold transition shrink-0 ${
+          isActive 
+            ? 'bg-blue-600 text-white shadow-sm' 
+            : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-100'
+        }`;
+        btn.textContent = m.label;
+        btn.onclick = () => {
+          activeMonthlyMonth = m.id;
+          renderMonthlyModule();
+        };
+        pillContainer.appendChild(btn);
+      });
+
+      const monthEntries = entries.filter(e => e.date && e.date.startsWith(activeMonthlyMonth));
+      let mInc = 0;
+      let mExp = 0;
+      const dailyMap = {};
+
+      monthEntries.forEach(e => {
+        const amt = parseFloat(e.amount) || 0;
+        if (e.type === 'jama') mInc += amt;
+        else if (e.type === 'kharch') mExp += amt;
+
+        if (!dailyMap[e.date]) dailyMap[e.date] = { inc: 0, exp: 0 };
+        if (e.type === 'jama') dailyMap[e.date].inc += amt;
+        else if (e.type === 'kharch') dailyMap[e.date].exp += amt;
+      });
+
+      const mNet = mInc - mExp;
+      const mMargin = calcPLMargin(mInc, mExp);
+      const activeDaysCount = Object.keys(dailyMap).length || 0;
+      const avgDaily = activeDaysCount > 0 ? Math.round(mInc / activeDaysCount) : 0;
+
+      document.getElementById('monthlySumIncome').textContent = formatINR(mInc);
+      document.getElementById('monthlySumExpense').textContent = formatINR(mExp);
+      document.getElementById('monthlySumNetProfit').textContent = formatINR(mNet);
+      document.getElementById('monthlyAvgDaily').textContent = `${formatINR(avgDaily)} / day`;
+      document.getElementById('monthlySumIncomeDays').textContent = `${activeDaysCount} active registered trade dates`;
+
+      const badgeEl = document.getElementById('monthlySumMarginBadge');
+      badgeEl.textContent = mMargin.str;
+      badgeEl.className = mInc === 0 && mExp === 0
+        ? "text-[10px] font-black px-2 py-0.5 rounded-full bg-slate-100 text-slate-700"
+        : (mMargin.isProfit 
+            ? "text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800"
+            : "text-[10px] font-black px-2 py-0.5 rounded-full bg-rose-100 text-rose-800");
+
+      document.getElementById('monthlyTableTitle').textContent = `Day-by-Day Cash Progression for ${activeMonthlyMonth}`;
+
+      const tbody = document.getElementById('monthlyDailyProgressionTbody');
+      tbody.innerHTML = '';
+
+      const dates = Object.keys(dailyMap).sort();
+      if (dates.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-400">No transactions recorded for ${activeMonthlyMonth} yet.</td></tr>`;
+      } else {
+        dates.forEach(d => {
+          const item = dailyMap[d];
+          const dNet = item.inc - item.exp;
+          const dMargin = calcPLMargin(item.inc, item.exp);
+          const tr = document.createElement('tr');
+          tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
+          tr.innerHTML = `
+            <td class="px-4 py-2.5 font-bold text-slate-800">${d}</td>
+            <td class="px-4 py-2.5 text-right font-black text-emerald-600">${formatINR(item.inc)}</td>
+            <td class="px-4 py-2.5 text-right font-black text-rose-600">${formatINR(item.exp)}</td>
+            <td class="px-4 py-2.5 text-right font-black ${dNet >= 0 ? 'text-slate-900' : 'text-rose-600'}">${formatINR(dNet)}</td>
+            <td class="px-4 py-2.5 text-right font-bold ${dMargin.isProfit ? 'text-emerald-700' : 'text-rose-700'}">${dMargin.str}</td>
+            <td class="px-4 py-2.5 text-center">
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${dNet >= 0 ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}">
+                ${dNet >= 0 ? 'Surplus' : 'Deficit'}
+              </span>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+      }
+    }
+
+    // --------------------------------------------
+    // 11. YEARLY MASTER FY 2026-27 (ALL 12 MONTHS)
+    // --------------------------------------------
+    function renderYearlyMasterTable() {
+      const monthAgg = {};
+      FY_MONTHS.forEach(m => { monthAgg[m.id] = { inc: 0, exp: 0 }; });
+
+      let grandInc = 0;
+      let grandExp = 0;
+
+      entries.forEach(e => {
+        if (!e.date) return;
+        const prefix = e.date.substring(0, 7);
+        if (monthAgg[prefix]) {
+          const amt = parseFloat(e.amount) || 0;
+          if (e.type === 'jama') {
+            monthAgg[prefix].inc += amt;
+            grandInc += amt;
+          } else if (e.type === 'kharch') {
+            monthAgg[prefix].exp += amt;
+            grandExp += amt;
+          }
+        }
+      });
+
+      const tbody = document.getElementById('yearlyMasterTableTbody');
+      tbody.innerHTML = '';
+
+      FY_MONTHS.forEach((m, idx) => {
+        const data = monthAgg[m.id];
+        const net = data.inc - data.exp;
+        const margin = calcPLMargin(data.inc, data.exp);
+
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
+        tr.innerHTML = `
+          <td class="px-4 py-3 font-bold text-slate-800 flex items-center gap-2">
+            <span class="w-5 h-5 rounded-md bg-slate-100 text-slate-700 text-[10px] flex items-center justify-center font-bold">${idx + 1}</span>
+            <span>${m.label} (${m.id})</span>
+          </td>
+          <td class="px-4 py-3 text-right font-black text-emerald-600">${formatINR(data.inc)}</td>
+          <td class="px-4 py-3 text-right font-black text-rose-600">${formatINR(data.exp)}</td>
+          <td class="px-4 py-3 text-right font-black ${net >= 0 ? 'text-slate-900' : 'text-rose-600'}">${formatINR(net)}</td>
+          <td class="px-4 py-3 text-right font-bold ${margin.isProfit ? 'text-emerald-700' : 'text-rose-700'}">
+            ${data.inc > 0 || data.exp > 0 ? margin.str : '-'}
+          </td>
+          <td class="px-4 py-3 text-center">
+            ${
+              data.inc === 0 && data.exp === 0
+                ? '<span class="text-[10px] text-slate-400 font-semibold">Ready for Entry</span>'
+                : `<span class="px-2.5 py-0.5 rounded-full text-[10px] font-black ${
+                    net >= 0 ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'
+                  }">${net >= 0 ? 'Profitable' : 'Deficit'}</span>`
+            }
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      const grandNet = grandInc - grandExp;
+      const grandMargin = calcPLMargin(grandInc, grandExp);
+      const tfoot = document.getElementById('yearlyMasterTableTfoot');
+      tfoot.innerHTML = `
+        <tr>
+          <td class="px-4 py-3.5 uppercase tracking-wider font-black">ANNUAL GRAND TOTAL (FY 2026-27)</td>
+          <td class="px-4 py-3.5 text-right font-black text-emerald-700 text-sm">${formatINR(grandInc)}</td>
+          <td class="px-4 py-3.5 text-right font-black text-rose-700 text-sm">${formatINR(grandExp)}</td>
+          <td class="px-4 py-3.5 text-right font-black text-slate-950 text-sm">${formatINR(grandNet)}</td>
+          <td class="px-4 py-3.5 text-right font-black text-sm ${grandMargin.isProfit ? 'text-emerald-800' : 'text-rose-800'}">${grandMargin.str}</td>
+          <td class="px-4 py-3.5 text-center font-black text-xs">
+            <span class="px-3 py-1 rounded-full ${grandNet >= 0 ? 'bg-emerald-600 text-white' : 'bg-rose-600 text-white'}">
+              ${grandNet >= 0 ? 'NET PROFIT' : 'NET LOSS'}
+            </span>
+          </td>
+        </tr>
+      `;
+    }
+
+    // --------------------------------------------
+    // 12. VENDOR PAYABLES (ACCOUNTS PAYABLE)
+    // --------------------------------------------
+    function renderPayablesTable() {
+      const tbody = document.getElementById('payablesTableTbody');
+      tbody.innerHTML = '';
+
+      if (suppliers.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" class="py-6 text-center text-slate-400">No vendor dues registered. Click "+ Add Supplier Bill" to record a bill.</td></tr>`;
+        return;
+      }
+
+      suppliers.forEach((sup, idx) => {
+        const remaining = (parseFloat(sup.totalBill) || 0) - (parseFloat(sup.paid) || 0);
+        sup.remainingDue = remaining;
+
+        const isCleared = remaining <= 0;
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
+        tr.innerHTML = `
+          <td class="px-4 py-3 font-bold text-slate-900">${sup.name}</td>
+          <td class="px-4 py-3 text-slate-600 font-medium">${sup.category}</td>
+          <td class="px-4 py-3 font-mono text-slate-500">${sup.phone || '-'}</td>
+          <td class="px-4 py-3 text-right font-bold text-slate-900">${formatINR(sup.totalBill)}</td>
+          <td class="px-4 py-3 text-right font-bold text-emerald-600">${formatINR(sup.paid)}</td>
+          <td class="px-4 py-3 text-right font-black ${isCleared ? 'text-slate-400' : 'text-rose-600'}">${formatINR(remaining)}</td>
+          <td class="px-4 py-3 text-center">
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${isCleared ? 'bg-slate-100 text-slate-700' : 'bg-rose-100 text-rose-800'}">
+              ${isCleared ? 'Fully Paid' : 'Due Pending'}
+            </span>
+          </td>
+          <td class="px-4 py-3 text-center no-print">
+            ${
+              isCleared
+                ? '<span class="text-slate-300 font-bold text-xs"><i class="fa-solid fa-check mr-1"></i>Cleared</span>'
+                : `<button onclick="openVendorPayModal(${idx})" class="px-2.5 py-1 rounded-lg bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs transition">
+                     Pay Due
+                   </button>`
+            }
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function openVendorPayModal(idx) {
+      const sup = suppliers[idx];
+      document.getElementById('vendorPayIndex').value = idx;
+      document.getElementById('vendorModalSubtitle').textContent = `Paying: ${sup.name} (${sup.category})`;
+      document.getElementById('vendorDueDisplay').textContent = formatINR(sup.remainingDue);
+      document.getElementById('vendorPayAmount').value = sup.remainingDue;
+      document.getElementById('vendorPayAmount').max = sup.remainingDue;
+      document.getElementById('vendorPayDate').value = selectedDate;
+      document.getElementById('vendorPayModal').classList.remove('hidden');
+    }
+
+    function closeVendorPayModal() {
+      document.getElementById('vendorPayModal').classList.add('hidden');
+    }
+
+    function handleVendorPaymentSubmit(e) {
+      e.preventDefault();
+      const idx = parseInt(document.getElementById('vendorPayIndex').value);
+      const amt = parseFloat(document.getElementById('vendorPayAmount').value) || 0;
+      const date = document.getElementById('vendorPayDate').value;
+      const mode = document.getElementById('vendorPayMode').value;
+
+      if (amt <= 0 || !suppliers[idx]) return;
+
+      const sup = suppliers[idx];
+      sup.paid = (parseFloat(sup.paid) || 0) + amt;
+      sup.remainingDue = Math.max(0, (parseFloat(sup.totalBill) || 0) - sup.paid);
+      saveVendors();
+
+      entries.unshift({
+        id: "TX" + Date.now().toString().slice(-6),
+        date: date,
+        type: "kharch",
+        category: sup.category || "Supplier Payment",
+        details: `Vendor Payment to ${sup.name}`,
+        mode: mode,
+        amount: amt,
+        ref: "VEN-" + Math.floor(1000 + Math.random() * 9000),
+        party: sup.name,
+        notes: "Recorded from Accounts Payable"
+      });
+      saveEntries();
+
+      closeVendorPayModal();
+      renderAllModules();
+      showToast(`Paid ${formatINR(amt)} to ${sup.name}`, "check");
+    }
+
+    function openAddVendorModal() {
+      const name = prompt("Enter Supplier / Vendor Name (e.g. Laxmi Mandai):");
+      if (!name) return;
+      const cat = prompt("Enter Material Category (e.g. Kirana, Vegetables, Dairy):", "Food Material / Kirana") || "Food Material / Kirana";
+      const bill = parseFloat(prompt("Enter Total Bill Amount (₹):", "15000")) || 0;
+      const paid = parseFloat(prompt("Enter Advance Paid (₹):", "0")) || 0;
+      const phone = prompt("Enter Phone Number (optional):", "") || "";
+
+      suppliers.push({
+        name: name,
+        category: cat,
+        phone: phone,
+        totalBill: bill,
+        paid: paid,
+        remainingDue: Math.max(0, bill - paid)
+      });
+      saveVendors();
+      renderPayablesTable();
+      renderKPICards();
+      showToast("Vendor bill added successfully", "check");
+    }
+
+    // --------------------------------------------
+    // 13. CUSTOMER RECEIVABLES (ACCOUNTS RECEIVABLE)
+    // --------------------------------------------
+    function renderReceivablesTable() {
+      const tbody = document.getElementById('receivablesTableTbody');
+      tbody.innerHTML = '';
+
+      if (customers.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" class="py-6 text-center text-slate-400">No customer credits registered. Click "+ Add Customer Credit" to record catering/credit.</td></tr>`;
+        return;
+      }
+
+      customers.forEach((c, idx) => {
+        const remaining = (parseFloat(c.totalBill) || 0) - (parseFloat(c.advancePaid) || 0);
+        c.remainingDue = remaining;
+        const isSettled = remaining <= 0;
+
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
+        tr.innerHTML = `
+          <td class="px-4 py-3 font-bold text-slate-900">${c.name}</td>
+          <td class="px-4 py-3 text-slate-600 font-medium">${c.orderType}</td>
+          <td class="px-4 py-3 font-mono text-slate-500">${c.phone || '-'}</td>
+          <td class="px-4 py-3 text-right font-bold text-slate-900">${formatINR(c.totalBill)}</td>
+          <td class="px-4 py-3 text-right font-bold text-emerald-600">${formatINR(c.advancePaid)}</td>
+          <td class="px-4 py-3 text-right font-black ${isSettled ? 'text-slate-400' : 'text-emerald-700'}">${formatINR(remaining)}</td>
+          <td class="px-4 py-3 text-center">
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${isSettled ? 'bg-slate-100 text-slate-700' : 'bg-emerald-100 text-emerald-800'}">
+              ${isSettled ? 'Fully Collected' : 'Receivable Due'}
+            </span>
+          </td>
+          <td class="px-4 py-3 text-center no-print">
+            ${
+              isSettled 
+                ? '<span class="text-slate-300 font-bold text-xs"><i class="fa-solid fa-check mr-1"></i>Received</span>'
+                : `<button onclick="openCustomerCollectModal(${idx})" class="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition">
+                     Collect
+                   </button>`
+            }
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function openCustomerCollectModal(idx) {
+      const c = customers[idx];
+      document.getElementById('customerCollectIndex').value = idx;
+      document.getElementById('customerModalSubtitle').textContent = `Collecting from: ${c.name} (${c.orderType})`;
+      document.getElementById('customerDueDisplay').textContent = formatINR(c.remainingDue);
+      document.getElementById('customerCollectAmount').value = c.remainingDue;
+      document.getElementById('customerCollectAmount').max = c.remainingDue;
+      document.getElementById('customerCollectDate').value = selectedDate;
+      document.getElementById('customerCollectModal').classList.remove('hidden');
+    }
+
+    function closeCustomerCollectModal() {
+      document.getElementById('customerCollectModal').classList.add('hidden');
+    }
+
+    function handleCustomerCollectionSubmit(e) {
+      e.preventDefault();
+      const idx = parseInt(document.getElementById('customerCollectIndex').value);
+      const amt = parseFloat(document.getElementById('customerCollectAmount').value) || 0;
+      const date = document.getElementById('customerCollectDate').value;
+      const mode = document.getElementById('customerCollectMode').value;
+
+      if (amt <= 0 || !customers[idx]) return;
+
+      const c = customers[idx];
+      c.advancePaid = (parseFloat(c.advancePaid) || 0) + amt;
+      c.remainingDue = Math.max(0, (parseFloat(c.totalBill) || 0) - c.advancePaid);
+      saveCustomers();
+
+      entries.unshift({
+        id: "TX" + Date.now().toString().slice(-6),
+        date: date,
+        type: "jama",
+        category: "Customer Udhaari Repayment",
+        details: `Credit Collection from ${c.name}`,
+        mode: mode,
+        amount: amt,
+        ref: "COL-" + Math.floor(1000 + Math.random() * 9000),
+        party: c.name,
+        notes: "Recorded from Accounts Receivable"
+      });
+      saveEntries();
+
+      closeCustomerCollectModal();
+      renderAllModules();
+      showToast(`Collected ${formatINR(amt)} from ${c.name}`, "check");
+    }
+
+    function openAddCustomerCreditModal() {
+      const name = prompt("Enter Customer / Corporate Party Name (e.g. Sunil Patil):");
+      if (!name) return;
+      const type = prompt("Enter Order Type (e.g. Catering, Corporate Lunch, Tiffin):", "Catering & Bulk Party Orders") || "Catering & Bulk Party Orders";
+      const bill = parseFloat(prompt("Enter Total Bill Amount (₹):", "25000")) || 0;
+      const adv = parseFloat(prompt("Enter Advance Received so far (₹):", "10000")) || 0;
+      const phone = prompt("Enter Phone Number (optional):", "") || "";
+
+      customers.push({
+        name: name,
+        orderType: type,
+        phone: phone,
+        totalBill: bill,
+        advancePaid: adv,
+        remainingDue: Math.max(0, bill - adv)
+      });
+      saveCustomers();
+      renderReceivablesTable();
+      renderKPICards();
+      showToast("Customer credit entry registered", "check");
+    }
+
+    // --------------------------------------------
+    // 14. STAFF ADVANCE & PAYROLL MASTER (25 STAFF)
+    // --------------------------------------------
+    function renderStaffPayrollTable() {
+      const tbody = document.getElementById('staffMasterTableTbody');
+      tbody.innerHTML = '';
+
+      staffMembers.forEach((st, idx) => {
+        const base = parseFloat(st.baseSalary) || 0;
+        const adv = parseFloat(st.advance) || 0;
+        const net = Math.max(0, base - adv);
+        const advPct = base > 0 ? ((adv / base) * 100).toFixed(0) : 0;
+
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
+        tr.innerHTML = `
+          <td class="px-4 py-2.5 font-bold text-slate-400 text-[11px]">${idx + 1}</td>
+          <td class="px-4 py-2.5 font-bold text-slate-900">${st.name}</td>
+          <td class="px-4 py-2.5 text-slate-600 font-medium">${st.role}</td>
+          <td class="px-4 py-2.5 text-right font-bold text-slate-800">${formatINR(base)}</td>
+          <td class="px-4 py-2.5 text-right font-bold text-rose-600">${formatINR(adv)}</td>
+          <td class="px-4 py-2.5 text-right font-black text-emerald-700">${formatINR(net)}</td>
+          <td class="px-4 py-2.5 text-center">
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${
+              advPct > 25 ? 'bg-rose-100 text-rose-800' : 'bg-slate-100 text-slate-700'
+            }">
+              ${advPct}% Drawn
+            </span>
+          </td>
+          <td class="px-4 py-2.5 text-center no-print">
+            <button onclick="disburseStaffAdvanceSingle(${idx})" class="px-2 py-0.5 rounded-md bg-purple-50 hover:bg-purple-100 text-purple-700 font-bold text-[11px] border border-purple-200 transition">
+              + Advance
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function disburseStaffAdvanceSingle(idx) {
+      const st = staffMembers[idx];
+      const amtStr = prompt(`Enter Advance amount to disburse for ${st.name} (Base Salary: ${formatINR(st.baseSalary)}):`, "1000");
+      if (!amtStr) return;
+      const amt = parseFloat(amtStr);
+      if (isNaN(amt) || amt <= 0) return;
+
+      const modePrompt = prompt("Select Payment Mode:\n1 = Cash\n2 = Online (Aaswad Bank)\n3 = Online (Yash Bank)", "1");
+      let mode = "Cash";
+      if (modePrompt === "2") mode = "Online (Aaswad Bank)";
+      else if (modePrompt === "3") mode = "Online (Yash Bank)";
+
+      st.advance = (parseFloat(st.advance) || 0) + amt;
+      saveStaff();
+
+      entries.unshift({
+        id: "TX" + Date.now().toString().slice(-6),
+        date: selectedDate,
+        type: "kharch",
+        category: "Staff Advance (कर्मचारी उचल)",
+        details: `Salary Advance to ${st.name}`,
+        mode: mode,
+        amount: amt,
+        ref: "ADV-" + Math.floor(100 + Math.random() * 900),
+        party: st.name,
+        notes: "Recorded from Staff Advance Ledger"
+      });
+      saveEntries();
+
+      renderAllModules();
+      showToast(`Advance of ${formatINR(amt)} given to ${st.name} via ${mode}`, "check");
+    }
+
+    function openStaffAdvanceQuickModal() {
+      const names = staffMembers.map(s => s.name).join(", ");
+      const picked = prompt(`Select staff name:\n${names}`, staffMembers[0].name);
+      if (!picked) return;
+      const idx = staffMembers.findIndex(s => s.name.toLowerCase() === picked.toLowerCase().trim());
+      if (idx !== -1) {
+        disburseStaffAdvanceSingle(idx);
+      } else {
+        alert("Staff member name not found in 25-staff master list.");
+      }
+    }
+
+    // --------------------------------------------
+    // 15. TRANSACTION MODAL & CATEGORY SYNC
+    // --------------------------------------------
+    function openEntryModal() {
+      document.getElementById('entryDate').value = selectedDate;
+      onTypeChanged();
+      document.getElementById('entryModal').classList.remove('hidden');
+    }
+
+    function closeEntryModal() {
+      document.getElementById('entryModal').classList.add('hidden');
+      document.getElementById('transactionForm').reset();
+    }
+
+    function onTypeChanged() {
+      const type = document.querySelector('input[name="entryType"]:checked').value;
+      
+      const select = document.getElementById('entryCategory');
+      select.innerHTML = '';
+      const list = type === 'jama' ? INCOME_CATEGORIES : EXPENSE_CATEGORIES;
+      list.forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c;
+        opt.textContent = c;
+        select.appendChild(opt);
+      });
+
+      const itemSelect = document.getElementById('entryQuickItemSelect');
+      itemSelect.innerHTML = '<option value="">-- Choose from 170+ Pre-set Items (Optional) --</option>';
+      const itemsForType = RESTAURANT_ITEM_CATALOG.filter(it => it.type === type);
+      itemsForType.forEach(it => {
+        const opt = document.createElement('option');
+        opt.value = it.name;
+        opt.textContent = `${it.name} [${it.unit} ~ ${formatINR(it.avgRate)}]`;
+        itemSelect.appendChild(opt);
+      });
+    }
+
+    function onQuickItemSelected(itemName) {
+      if (!itemName) return;
+      const found = RESTAURANT_ITEM_CATALOG.find(i => i.name === itemName);
+      if (!found) return;
+
+      const catSelect = document.getElementById('entryCategory');
+      catSelect.value = found.category;
+      
+      document.getElementById('entryDetails').value = `${found.name} (${found.unit})`;
+      if (!document.getElementById('entryAmount').value || document.getElementById('entryAmount').value === '0') {
+        document.getElementById('entryAmount').value = found.avgRate;
+      }
+    }
+
+    function handleTransactionSubmit(e) {
+      e.preventDefault();
+      const type = document.querySelector('input[name="entryType"]:checked').value;
+      const date = document.getElementById('entryDate').value;
+      const amount = parseFloat(document.getElementById('entryAmount').value) || 0;
+      const category = document.getElementById('entryCategory').value;
+      const details = document.getElementById('entryDetails').value;
+      const mode = document.getElementById('entryMode').value;
+      const party = document.getElementById('entryParty').value;
+      const ref = document.getElementById('entryRef').value;
+
+      if (amount <= 0) return;
+
+      const newTx = {
+        id: "TX" + Date.now().toString().slice(-6),
+        date: date,
+        type: type,
+        category: category,
+        details: details,
+        mode: mode,
+        amount: amount,
+        ref: ref || ("REF-" + Math.floor(1000 + Math.random() * 9000)),
+        party: party || "-",
+        notes: ""
+      };
+
+      entries.unshift(newTx);
+      saveEntries();
+      closeEntryModal();
+      renderAllModules();
+      showToast(`${type === 'jama' ? 'Income' : 'Expense'} of ${formatINR(amount)} added successfully`, "check");
+    }
+
+    // --------------------------------------------
+    // 16. INTERACTIVE CHART.JS CHARTS
+    // --------------------------------------------
+    function renderCharts() {
+      const labels = FY_MONTHS.map(m => m.short);
+      const incData = [];
+      const expData = [];
+
+      FY_MONTHS.forEach(m => {
+        let inc = 0;
+        let exp = 0;
+        entries.forEach(e => {
+          if (e.date && e.date.startsWith(m.id)) {
+            const amt = parseFloat(e.amount) || 0;
+            if (e.type === 'jama') inc += amt;
+            else if (e.type === 'kharch') exp += amt;
+          }
+        });
+        incData.push(inc);
+        expData.push(exp);
+      });
+
+      const trendCtx = document.getElementById('monthlyTrendChart').getContext('2d');
+      if (monthlyTrendChartInstance) monthlyTrendChartInstance.destroy();
+      monthlyTrendChartInstance = new Chart(trendCtx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [
+            { label: 'Income / Jama (₹)', data: incData, backgroundColor: '#10b981', borderRadius: 6 },
+            { label: 'Expense / Kharcha (₹)', data: expData, backgroundColor: '#f43f5e', borderRadius: 6 }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'top', labels: { boxWidth: 12, font: { size: 10 } } }
+          },
+          scales: {
+            y: { ticks: { callback: v => "₹" + (v >= 1000 ? (v / 1000) + 'k' : v), font: { size: 9 } } },
+            x: { ticks: { font: { size: 10 } } }
+          }
+        }
+      });
+
+      const catMap = {};
+      entries.forEach(e => {
+        if (e.type === 'kharch') {
+          const amt = parseFloat(e.amount) || 0;
+          catMap[e.category] = (catMap[e.category] || 0) + amt;
+        }
+      });
+
+      const sorted = Object.keys(catMap).sort((a, b) => catMap[b] - catMap[a]);
+      const donutLabels = sorted.slice(0, 5);
+      const donutValues = donutLabels.map(k => catMap[k]);
+
+      const colors = ['#f43f5e', '#f59e0b', '#8b5cf6', '#06b6d4', '#64748b'];
+
+      const donutCtx = document.getElementById('expenseCategoryDonut').getContext('2d');
+      if (expenseCategoryDonutInstance) expenseCategoryDonutInstance.destroy();
+      expenseCategoryDonutInstance = new Chart(donutCtx, {
+        type: 'doughnut',
+        data: {
+          labels: donutLabels.length > 0 ? donutLabels : ['No Expenses Yet'],
+          datasets: [{
+            data: donutValues.length > 0 ? donutValues : [1],
+            backgroundColor: donutValues.length > 0 ? colors : ['#e2e8f0'],
+            borderWidth: 2,
+            borderColor: '#ffffff'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          cutout: '70%'
+        }
+      });
+
+      const legendEl = document.getElementById('donutTopLegend');
+      legendEl.innerHTML = '';
+      if (donutLabels.length === 0) {
+        legendEl.innerHTML = `<span class="col-span-2 text-slate-400 text-center py-2">No expenses recorded yet</span>`;
+      } else {
+        donutLabels.forEach((label, i) => {
+          const div = document.createElement('div');
+          div.className = "flex items-center gap-1.5 truncate";
+          div.innerHTML = `
+            <span class="w-2.5 h-2.5 rounded-full shrink-0" style="background-color: ${colors[i]}"></span>
+            <span class="truncate" title="${label}">${label}</span>
+          `;
+          legendEl.appendChild(div);
+        });
+      }
+    }
+
+    // --------------------------------------------
+    // 17. EXPORT & BACKUP TOOLS
+    // --------------------------------------------
+    function downloadFile(content, fileName, contentType) {
+      const a = document.createElement("a");
+      const file = new Blob([content], { type: contentType });
+      a.href = URL.createObjectURL(file);
+      a.download = fileName;
+      a.click();
+      URL.revokeObjectURL(a.href);
+    }
+
+    function exportDailyCSV() {
+      const dailyTx = entries.filter(e => e.date === selectedDate);
+      let csv = "ID,Date,Type,Category,Details,PaymentMode,Amount,RefNo,Party\n";
+      dailyTx.forEach(t => {
+        csv += `"${t.id}","${t.date}","${t.type}","${t.category}","${t.details}","${t.mode}","${t.amount}","${t.ref}","${t.party}"\n`;
+      });
+      downloadFile(csv, `Aaswad_Daily_Cashbook_${selectedDate}.csv`, 'text/csv');
+      showToast("Daily cashbook exported", "file-csv");
+    }
+
+    function exportMonthlyCSV() {
+      const mTx = entries.filter(e => e.date && e.date.startsWith(activeMonthlyMonth));
+      let csv = "ID,Date,Type,Category,Details,PaymentMode,Amount,RefNo,Party\n";
+      mTx.forEach(t => {
+        csv += `"${t.id}","${t.date}","${t.type}","${t.category}","${t.details}","${t.mode}","${t.amount}","${t.ref}","${t.party}"\n`;
+      });
+      downloadFile(csv, `Aaswad_Monthly_Statement_${activeMonthlyMonth}.csv`, 'text/csv');
+      showToast("Monthly statement exported", "file-csv");
+    }
+
+    function exportYearlyCSV() {
+      let csv = "Month,TotalIncome,TotalExpense,NetProfit,MarginPercent\n";
+      FY_MONTHS.forEach(m => {
+        let inc = 0; let exp = 0;
+        entries.forEach(e => {
+          if (e.date && e.date.startsWith(m.id)) {
+            const amt = parseFloat(e.amount) || 0;
+            if (e.type === 'jama') inc += amt; else if (e.type === 'kharch') exp += amt;
+          }
+        });
+        const net = inc - exp;
+        const margin = inc > 0 ? ((net / inc) * 100).toFixed(1) + "%" : "0.0%";
+        csv += `"${m.label}","${inc}","${exp}","${net}","${margin}"\n`;
+      });
+      downloadFile(csv, `Aaswad_Yearly_Master_FY2026_27.csv`, 'text/csv');
+      showToast("Yearly master exported", "file-csv");
+    }
+
+    function exportFullJSONBackup() {
+      const backupData = {
+        app: "Aaswad Restaurant Master Cockpit",
+        timestamp: new Date().toISOString(),
+        entries: entries,
+        suppliers: suppliers,
+        customers: customers,
+        staff: staffMembers
+      };
+      downloadFile(JSON.stringify(backupData, null, 2), `Aaswad_Complete_Backup_${selectedDate}.json`, 'application/json');
+      showToast("Full backup file saved to downloads", "cloud-arrow-down");
+    }
+
+    function showToast(msg, icon = "circle-check") {
+      const toast = document.getElementById('toastNotification');
+      const iconEl = document.getElementById('toastIcon');
+      const msgEl = document.getElementById('toastMsg');
+
+      iconEl.className = `fa-solid fa-${icon} text-emerald-400 text-base`;
+      msgEl.textContent = msg;
+
+      toast.classList.remove('translate-y-24', 'opacity-0');
+      toast.classList.add('translate-y-0', 'opacity-100');
+
+      setTimeout(() => {
+        toast.classList.remove('translate-y-0', 'opacity-100');
+        toast.classList.add('translate-y-24', 'opacity-0');
+      }, 2500);
+    }
+  </script>
+</body>
+</html>
